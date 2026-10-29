@@ -1,0 +1,62 @@
+---
+title: Bilder & Video
+icon: 🎨
+order: 2
+tagline: Sehen, erkennen und erschaffen – vom Gesichtsscan bis zum KI-Film.
+interests: [bild]
+explain:
+  einsteiger: KI erkennt, was auf Fotos zu sehen ist, und kann aus einem kurzen Satz neue Bilder und sogar Videos malen – in jedem Stil, den du dir vorstellst.
+  anwender: Bild-KI arbeitet in zwei Richtungen – Erkennen (Fotos sortieren, Text in Bildern lesen, Objekte finden) und Erzeugen (Text-zu-Bild und Text-zu-Video mit Diffusionsmodellen).
+  profi: Bildverstehen per Vision-Transformern und multimodalen LLMs; Generierung über latente Diffusions- bzw. Flow-Matching-Modelle mit Transformer-Backbones, bei Video mit raumzeitlichen Patches und zunehmend synchronem Audio.
+achievements:
+  - { year: '2012', text: 'AlexNet gewinnt den ImageNet-Wettbewerb mit großem Abstand – Start des Deep-Learning-Booms.' }
+  - { year: '2015', text: 'KI erkennt Objekte in Fotos so gut wie Menschen im ImageNet-Test.' }
+  - { year: '2022', text: 'DALL·E 2, Midjourney und Stable Diffusion erzeugen Bilder aus Text für alle.' }
+  - { year: '2025', text: 'Video-Modelle erzeugen realistische Clips inklusive Ton, Dialog und Geräuschen.' }
+future:
+  - Längere, konsistente Videos mit gleichbleibenden Figuren – erste KI-Kurzfilme und Werbespots sind Alltag.
+  - Interaktive „Welt-Modelle“, durch die man sich wie in einem Spiel bewegen kann.
+  - Bessere Kennzeichnung (Wasserzeichen, Herkunftsnachweise) gegen Deepfakes.
+tryIt: 'Erstelle ein Bild: Ein gemütliches Café auf dem Mars, große Fenster mit Blick auf rote Dünen, warmes Licht, Stil: Aquarell.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Erkennen:** Gesichter entsperren das Handy, Fotos werden automatisch nach Personen und Orten sortiert, Apps erkennen Pflanzen und Pilze.
+- **Lesen:** Texte in Fotos, Handschrift und Tabellen werden erkannt und übersetzt.
+- **Bearbeiten:** Personen aus Fotos entfernen, Hintergründe ersetzen, unscharfe Bilder schärfen, Schwarz-Weiß-Fotos kolorieren.
+- **Erzeugen:** Illustrationen, Logos, Produktfotos und kurze Videos aus einer Beschreibung.
+- **Verstehen:** Multimodale Assistenten beschreiben Bilder, erklären Diagramme und helfen sehbehinderten Menschen im Alltag.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Zum **Erkennen** hat die KI Millionen beschriftete Bilder gesehen („Katze“, „Auto“, „Baum“) und dabei gelernt, woran man diese Dinge erkennt.
+
+Zum **Malen** macht sie etwas Verblüffendes: Sie startet mit einem Bild aus reinem Rauschen – wie Schnee auf einem alten Fernseher – und entfernt das Rauschen Schritt für Schritt, bis ein Bild entsteht, das zu deiner Beschreibung passt.
+
+</Level>
+
+<Level for="anwender">
+
+**Diffusionsmodelle** werden trainiert, indem man echten Bildern schrittweise Rauschen hinzufügt und das Modell lernt, dieses Rauschen wieder herauszurechnen. Bei der Erzeugung läuft der Prozess rückwärts – gesteuert von deinem Text, den ein Sprachmodell in eine Art „Bedeutungs-Koordinaten“ übersetzt.
+
+Video-Modelle machen das Gleiche über viele Bilder hinweg und müssen dabei lernen, dass Dinge über die Zeit gleich aussehen und sich physikalisch plausibel bewegen.
+
+</Level>
+
+<Level for="profi">
+
+Moderne Generatoren arbeiten im **latenten Raum** eines Autoencoders und nutzen Transformer statt U-Nets (DiT). Statt klassischer Diffusion wird oft **Flow Matching** eingesetzt, kombiniert mit Distillation für Generierung in wenigen Schritten. Text-Conditioning läuft über Cross-Attention oder gemeinsame Token-Sequenzen.
+
+Für Video werden raumzeitliche Patches gelernt; Konsistenz und Physik bleiben die Hauptprobleme. Parallel verschmelzen Bildverstehen und -erzeugung in **nativ multimodalen** Modellen, die Bilder als Token direkt mit Text mischen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Nicht alles, was echt aussieht, ist echt – besonders bei überraschenden Nachrichtenbildern.
+- Urheberrechte und Persönlichkeitsrechte gelten auch bei KI-Bildern.
+- Gesichtserkennung im öffentlichen Raum ist in der EU stark eingeschränkt.

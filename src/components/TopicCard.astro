@@ -1,0 +1,132 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { levels } from '../data/levels';
+import { url } from '../lib/url';
+
+interface Props {
+  topic: CollectionEntry<'themen'>;
+  index?: number;
+}
+const { topic, index = 0 } = Astro.props;
+const d = topic.data;
+const latest = [...d.achievements].slice(-2).reverse();
+---
+
+<article class="topic card reveal" style={`--i:${index % 3}`} data-topic data-interests={d.interests.join(' ')}>
+  <a class="topic-link" href={url(`themen/${topic.id}/`)}>
+    <div class="topic-head">
+      <span class="topic-icon" aria-hidden="true">{d.icon}</span>
+      <span class="badge recommend-badge" data-recommend-badge hidden>★ Passt zu dir</span>
+    </div>
+    <h3>{d.title}</h3>
+    <p class="tagline">{d.tagline}</p>
+    {
+      levels.map((l) => (
+        <p class="explain" data-lvl={l.id}>
+          {d.explain[l.id]}
+        </p>
+      ))
+    }
+    <ul class="achievements" aria-label="Errungenschaften">
+      {
+        latest.map((a) => (
+          <li>
+            <span class="year">{a.year}</span>
+            <span>{a.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <span class="more">Mehr erfahren <span class="arrow" aria-hidden="true">→</span></span>
+  </a>
+</article>
+
+<style>
+  .topic {
+    height: 100%;
+    transition: border-color var(--motion-150) var(--ease-out);
+  }
+  .topic:hover {
+    border-color: var(--accent);
+  }
+  .topic.is-recommended {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  }
+  .topic-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--s-5);
+    color: inherit;
+    text-decoration: none;
+  }
+  .topic-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-3);
+  }
+  .topic-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    background: var(--surface-2);
+  }
+  .recommend-badge {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 {
+    margin-bottom: var(--s-1);
+  }
+  .tagline {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--s-3);
+  }
+  .explain {
+    font-size: var(--text-sm);
+  }
+  .achievements {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--s-4);
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--text-sm);
+    border-top: 1px solid var(--border);
+    padding-top: var(--s-3);
+  }
+  .achievements li {
+    display: flex;
+    gap: var(--s-3);
+  }
+  .year {
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    min-width: 2.6rem;
+  }
+  .more {
+    margin-top: auto;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: var(--text-sm);
+  }
+  .arrow {
+    display: inline-block;
+    transition: transform var(--motion-150) var(--ease-out);
+  }
+  .topic:hover .arrow {
+    transform: translateX(4px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .topic:hover .arrow {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,712 @@
+---
+import { questions, thresholds, maxPoints } from '../data/quiz';
+import { levels } from '../data/levels';
+import { url } from '../lib/url';
+
+interface Props {
+  topics: { slug: string; title: string; icon: string; tagline: string; interests: string[] }[];
+}
+const { topics } = Astro.props;
+const total = questions.length;
+const knowledgeCount = questions.filter((q) => q.type === 'knowledge').length;
+const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+---
+
+<section class="quiz card" id="quiz" data-quiz data-max={maxPoints} data-thresholds={JSON.stringify(thresholds)} data-reise={url('reise/')} aria-label="Einstiegsquiz">
+  <!-- Start -->
+  <div class="screen is-active" data-screen="intro">
+    <span class="kicker">In 2 Minuten zu deiner Lernreise</span>
+    <h2>Wie fit bist du in Sachen KI?</h2>
+    <p class="muted">
+      {total} kurze Fragen zu Wissen und Nutzung. Danach passen wir alle Erklärungen an deinen Stand an – von „ganz neu
+      hier“ bis „gib mir die Details“.
+    </p>
+    <ul class="intro-points">
+      <li><span aria-hidden="true">🧠</span> {knowledgeCount} Wissensfragen – mit Erklärung nach jeder Antwort</li>
+      <li><span aria-hidden="true">🎯</span> {total - knowledgeCount} Fragen zu deiner Nutzung und deinen Interessen</li>
+      <li><span aria-hidden="true">🔒</span> Dein Ergebnis bleibt nur in deinem Browser</li>
+    </ul>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" data-start>Quiz starten</button>
+      <details class="skip-quiz">
+        <summary class="btn btn-ghost">Stufe selbst wählen</summary>
+        <div class="skip-options">
+          {
+            levels.map((l) => (
+              <button class="level-choice" type="button" data-choose-level={l.id}>
+                <span class="level-emoji" aria-hidden="true">{l.emoji}</span>
+                <span>
+                  <strong>{l.name}</strong>
+                  <small>{l.short}</small>
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Fragen -->
+  {
+    questions.map((q, qi) => (
+      <div class="screen" data-screen="question" data-index={qi} data-type={q.type} data-weight={q.weight ?? 1}>
+        <div class="progress" aria-hidden="true">
+          <span class="progress-label">
+            Frage {qi + 1} von {total}
+          </span>
+          <span class="progress-track">
+            <span class="progress-fill" style={`--p-from:${qi / total};--p:${(qi + 1) / total}`} />
+          </span>
+        </div>
+        <span class="kicker">
+          {q.type === 'knowledge' ? 'Wissensfrage' : q.type === 'interests' ? 'Deine Interessen' : 'Selbsteinschätzung'}
+        </span>
+        <h3 class="question" tabindex="-1">{q.question}</h3>
+        {q.hint && <p class="muted hint">{q.hint}</p>}
+        <div
+          class:list={['options', { 'options-chips': q.type === 'interests' }]}
+          role={q.type === 'interests' ? 'group' : undefined}
+          aria-label={q.question}
+        >
+          {q.options.map((o, oi) => (
+            <button
+              type="button"
+              class="option"
+              data-option
+              data-points={o.points ?? 0}
+              data-correct={o.correct ? 'true' : undefined}
+              data-interest={o.interest}
+              aria-pressed={q.type === 'interests' ? 'false' : undefined}
+              style={`--i:${oi}`}
+            >
+              {q.type !== 'interests' && (
+                <span class="option-letter" aria-hidden="true">
+                  {letters[oi]}
+                </span>
+              )}
+              <span class="option-label">{o.label}</span>
+              <span class="option-state" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+        <div class="feedback" aria-live="polite" data-feedback>
+          {q.explanation && (
+            <div class="feedback-box" hidden data-feedback-box>
+              <p class="feedback-title" data-feedback-title />
+              <p class="feedback-text">{q.explanation}</p>
+            </div>
+          )}
+        </div>
+        <div class="nav-row">
+          <button type="button" class="btn btn-ghost" data-back disabled={qi === 0}>
+            Zurück
+          </button>
+          <button type="button" class="btn btn-primary" data-next disabled={q.type !== 'interests'}>
+            {qi === total - 1 ? 'Ergebnis anzeigen' : 'Weiter'}
+          </button>
+        </div>
+      </div>
+    ))
+  }
+
+  <!-- Ergebnis -->
+  <div class="screen" data-screen="result">
+    <span class="kicker">Dein Ergebnis</span>
+    {
+      levels.map((l) => (
+        <div class="result-level" data-result-level={l.id} hidden>
+          <div class="result-emoji" aria-hidden="true">
+            {l.emoji}
+          </div>
+          <h2 tabindex="-1">Du bist: {l.name}</h2>
+          <p class="muted">{l.description}</p>
+        </div>
+      ))
+    }
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value"><span data-count="score">0</span> / {maxPoints}</span>
+        <span class="stat-label">Punkte</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value"><span data-count="correct">0</span> / <span data-knowledge-total></span></span>
+        <span class="stat-label">Wissensfragen richtig</span>
+      </div>
+    </div>
+
+    <div class="recommend" data-recommend hidden>
+      <h3>Für dich besonders spannend</h3>
+      <ul class="recommend-list">
+        {
+          topics.map((t) => (
+            <li data-topic-interests={t.interests.join(' ')} hidden>
+              <a href={url(`themen/${t.slug}/`)}>
+                <span aria-hidden="true">{t.icon}</span>
+                <span>
+                  <strong>{t.title}</strong>
+                  <small>{t.tagline}</small>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-primary" href={url('reise/')}>Lernreise starten →</a>
+      <button class="btn btn-ghost" type="button" data-restart>Quiz wiederholen</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { saveProfile } from '../scripts/profile';
+  import type { InterestId, LevelId } from '../data/levels';
+
+  const root = document.querySelector<HTMLElement>('[data-quiz]');
+  if (root) initQuiz(root);
+
+  function initQuiz(root: HTMLElement) {
+    const screens = [...root.querySelectorAll<HTMLElement>('[data-screen]')];
+    const qScreens = screens.filter((s) => s.dataset.screen === 'question');
+    const result = screens.find((s) => s.dataset.screen === 'result')!;
+    const max = Number(root.dataset.max);
+    const thresholds = JSON.parse(root.dataset.thresholds!) as { min: number; level: LevelId }[];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Antworten je Frage: Index der gewählten Option(en)
+    const answers = new Map<number, number[]>();
+
+    const pulse = (strength: number) => document.dispatchEvent(new CustomEvent('ki:pulse', { detail: { strength } }));
+
+    function show(target: HTMLElement, dir: 1 | -1 = 1) {
+      const current = screens.find((s) => s.classList.contains('is-active'));
+      if (current === target) return;
+      current?.classList.remove('is-active', 'enter-back');
+      target.classList.toggle('enter-back', dir === -1);
+      target.classList.add('is-active');
+      const focusEl = target.querySelector<HTMLElement>('.question, h2:not([hidden] *)');
+      // Nur fokussieren, wenn das Quiz schon in Benutzung ist (nicht beim Laden)
+      focusEl?.focus({ preventScroll: true });
+      const top = root.getBoundingClientRect().top;
+      if (top < 60 || top > window.innerHeight * 0.5) {
+        root.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' });
+      }
+    }
+
+    root.querySelector('[data-start]')?.addEventListener('click', () => {
+      show(qScreens[0]);
+      pulse(1);
+    });
+
+    // Stufe direkt wählen (ohne Quiz)
+    root.querySelectorAll<HTMLButtonElement>('[data-choose-level]').forEach((b) =>
+      b.addEventListener('click', () => {
+        saveProfile({ level: b.dataset.chooseLevel as LevelId, interests: [], fromQuiz: false });
+        window.location.href = root.dataset.reise!;
+      }),
+    );
+
+    qScreens.forEach((screen, qi) => {
+      const type = screen.dataset.type;
+      const options = [...screen.querySelectorAll<HTMLButtonElement>('[data-option]')];
+      const next = screen.querySelector<HTMLButtonElement>('[data-next]')!;
+      const back = screen.querySelector<HTMLButtonElement>('[data-back]')!;
+
+      options.forEach((opt, oi) =>
+        opt.addEventListener('click', () => {
+          if (type === 'interests') {
+            const on = opt.getAttribute('aria-pressed') !== 'true';
+            opt.setAttribute('aria-pressed', String(on));
+            const sel = options.flatMap((o, i) => (o.getAttribute('aria-pressed') === 'true' ? [i] : []));
+            answers.set(qi, sel);
+            if (on) pulse(1);
+            return;
+          }
+          if (type === 'knowledge') {
+            if (screen.dataset.locked) return;
+            screen.dataset.locked = 'true';
+            answers.set(qi, [oi]);
+            const correct = opt.dataset.correct === 'true';
+            options.forEach((o) => {
+              o.disabled = true;
+              if (o.dataset.correct === 'true') o.classList.add('is-correct');
+            });
+            if (!correct) opt.classList.add('is-wrong');
+            opt.classList.add('is-chosen');
+            const box = screen.querySelector<HTMLElement>('[data-feedback-box]');
+            const title = screen.querySelector<HTMLElement>('[data-feedback-title]');
+            if (box && title) {
+              title.textContent = correct ? '✓ Richtig!' : '✗ Nicht ganz – die richtige Antwort ist markiert.';
+              box.classList.toggle('is-good', correct);
+              box.hidden = false;
+            }
+            pulse(correct ? 3 : 1);
+            next.disabled = false;
+            next.focus({ preventScroll: true });
+            return;
+          }
+          // Selbsteinschätzung
+          options.forEach((o) => o.classList.toggle('is-chosen', o === opt));
+          options.forEach((o) => o.setAttribute('aria-pressed', String(o === opt)));
+          answers.set(qi, [oi]);
+          next.disabled = false;
+          pulse(1);
+        }),
+      );
+
+      next.addEventListener('click', () => {
+        const target = qScreens[qi + 1];
+        if (target) show(target);
+        else finish();
+      });
+      back.addEventListener('click', () => {
+        if (qi > 0) show(qScreens[qi - 1], -1);
+      });
+    });
+
+    function finish() {
+      let score = 0;
+      let correct = 0;
+      let knowledgeTotal = 0;
+      const interests: InterestId[] = [];
+
+      qScreens.forEach((screen, qi) => {
+        const options = [...screen.querySelectorAll<HTMLButtonElement>('[data-option]')];
+        const chosen = answers.get(qi) ?? [];
+        if (screen.dataset.type === 'knowledge') {
+          knowledgeTotal++;
+          if (chosen.length && options[chosen[0]].dataset.correct === 'true') {
+            correct++;
+            score += Number(screen.dataset.weight);
+          }
+        } else if (screen.dataset.type === 'self') {
+          chosen.forEach((i) => (score += Number(options[i].dataset.points)));
+        } else {
+          chosen.forEach((i) => interests.push(options[i].dataset.interest as InterestId));
+        }
+      });
+
+      const level = [...thresholds].reverse().find((t) => score >= t.min)?.level ?? thresholds[0].level;
+      saveProfile({ level, interests, score, maxScore: max, correct, knowledgeTotal, fromQuiz: true });
+
+      result.querySelectorAll<HTMLElement>('[data-result-level]').forEach((el) => {
+        el.hidden = el.dataset.resultLevel !== level;
+      });
+      result.querySelector('[data-knowledge-total]')!.textContent = String(knowledgeTotal);
+
+      // Empfehlungen: Themen, die zu den Interessen passen (max. 4)
+      const items = [...result.querySelectorAll<HTMLElement>('[data-topic-interests]')];
+      let shown = 0;
+      items.forEach((li) => {
+        const match = li.dataset.topicInterests!.split(' ').some((i) => interests.includes(i as InterestId));
+        li.hidden = !(match && shown < 4);
+        if (match && shown < 4) shown++;
+      });
+      result.querySelector<HTMLElement>('[data-recommend]')!.hidden = shown === 0;
+
+      show(result);
+      pulse(3);
+      countUp(result.querySelector('[data-count="score"]')!, score);
+      countUp(result.querySelector('[data-count="correct"]')!, correct);
+      result.querySelector<HTMLElement>('[data-result-level]:not([hidden]) h2')?.focus({ preventScroll: true });
+    }
+
+    function countUp(el: Element, to: number) {
+      if (reduce.matches || to === 0) {
+        el.textContent = String(to);
+        return;
+      }
+      const start = performance.now();
+      const dur = 300 + to * 40;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / dur);
+        el.textContent = String(Math.round(to * (1 - Math.pow(1 - t, 3))));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    root.querySelector('[data-restart]')?.addEventListener('click', () => {
+      answers.clear();
+      qScreens.forEach((screen) => {
+        delete screen.dataset.locked;
+        screen.querySelectorAll<HTMLButtonElement>('[data-option]').forEach((o) => {
+          o.disabled = false;
+          o.classList.remove('is-correct', 'is-wrong', 'is-chosen');
+          if (o.hasAttribute('aria-pressed')) o.setAttribute('aria-pressed', 'false');
+        });
+        const box = screen.querySelector<HTMLElement>('[data-feedback-box]');
+        if (box) box.hidden = true;
+        const next = screen.querySelector<HTMLButtonElement>('[data-next]')!;
+        next.disabled = screen.dataset.type !== 'interests';
+      });
+      show(qScreens[0], -1);
+    });
+
+    // Direktlink #quiz-start öffnet gleich die erste Frage
+    if (location.hash === '#quiz-start') show(qScreens[0]);
+  }
+</script>
+
+<style>
+  .quiz {
+    position: relative;
+    padding: var(--s-5);
+    box-shadow: var(--shadow);
+    min-height: 420px;
+  }
+  @media (min-width: 640px) {
+    .quiz {
+      padding: var(--s-6);
+    }
+  }
+  .screen {
+    display: none;
+  }
+  .screen.is-active {
+    display: block;
+    animation: screen-in var(--motion-300) var(--ease-out) both;
+  }
+  .screen.is-active.enter-back {
+    animation-name: screen-in-back;
+  }
+  @keyframes screen-in {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+  }
+  @keyframes screen-in-back {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+  }
+  .question:focus,
+  h2:focus {
+    outline: none;
+  }
+
+  .intro-points {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-4) 0 0;
+    display: grid;
+    gap: var(--s-2);
+  }
+  .intro-points li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: center;
+    padding: var(--s-2) var(--s-3);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+  .screen[data-screen='intro'].is-active .intro-points li {
+    animation: option-in var(--motion-300) var(--ease-out) both;
+  }
+  .intro-points li:nth-child(2) {
+    animation-delay: 60ms !important;
+  }
+  .intro-points li:nth-child(3) {
+    animation-delay: 120ms !important;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+    align-items: flex-start;
+  }
+  .skip-quiz summary {
+    list-style: none;
+  }
+  .skip-quiz summary::-webkit-details-marker {
+    display: none;
+  }
+  .skip-options {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .level-choice {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--s-2) var(--s-3);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .level-choice:hover {
+    border-color: var(--accent);
+  }
+  .level-choice small {
+    display: block;
+    color: var(--muted);
+  }
+  .level-emoji {
+    font-size: 1.25rem;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-5);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .progress-label {
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(var(--p));
+  }
+  .screen.is-active .progress-fill {
+    animation: fill var(--motion-300) var(--ease-out) both;
+  }
+  @keyframes fill {
+    from {
+      transform: scaleX(var(--p-from));
+    }
+  }
+  .hint {
+    font-size: var(--text-sm);
+  }
+
+  .options {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+  }
+  .options-chips {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    width: 100%;
+    min-height: 48px;
+    padding: var(--s-2) var(--s-3);
+    text-align: left;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+      border-color var(--motion-150) var(--ease-out),
+      background-color var(--motion-150) var(--ease-out);
+  }
+  .screen.is-active .option {
+    animation: option-in var(--motion-300) var(--ease-out) both;
+    animation-delay: calc(60ms + var(--i) * 40ms);
+  }
+  @keyframes option-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  .options-chips .option {
+    width: auto;
+    border-radius: 999px;
+    padding: var(--s-2) var(--s-4);
+  }
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+  .option:disabled {
+    cursor: default;
+  }
+  .option-letter {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .option-label {
+    flex: 1;
+  }
+  .option-state {
+    font-weight: 700;
+  }
+  .option[aria-pressed='true'],
+  .option.is-chosen {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .option[aria-pressed='true'] .option-letter {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .options-chips .option[aria-pressed='true'] .option-state::before {
+    content: '✓';
+    color: var(--accent);
+  }
+  .option.is-correct {
+    border-color: var(--good);
+    background: var(--good-soft);
+  }
+  .option.is-correct .option-state::before {
+    content: '✓ richtig';
+    color: var(--good);
+    font-size: var(--text-sm);
+  }
+  .option.is-wrong {
+    border-color: var(--bad);
+    background: var(--bad-soft);
+  }
+  .option.is-wrong .option-state::before {
+    content: '✗ deine Wahl';
+    color: var(--bad);
+    font-size: var(--text-sm);
+  }
+  .option:disabled:not(.is-correct):not(.is-wrong) {
+    opacity: 0.55;
+  }
+
+  .feedback-box {
+    margin-top: var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--radius-sm);
+    background: var(--warn-soft);
+    border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+    animation: option-in var(--motion-300) var(--ease-out) both;
+  }
+  .feedback-box.is-good {
+    background: var(--good-soft);
+    border-color: color-mix(in srgb, var(--good) 30%, transparent);
+  }
+  .feedback-title {
+    font-weight: 700;
+    margin-bottom: var(--s-1);
+  }
+  .feedback-text {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+
+  .result-emoji {
+    font-size: 3rem;
+    line-height: 1;
+    margin: var(--s-2) 0 var(--s-3);
+    animation: pop var(--motion-300) var(--ease-out) both;
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+    margin: var(--s-4) 0;
+  }
+  .stat {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: var(--s-3) var(--s-4);
+  }
+  .stat-value {
+    display: block;
+    font-size: var(--text-xl);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-label {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .recommend h3 {
+    margin-top: var(--s-5);
+  }
+  .recommend-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--s-2);
+  }
+  @media (min-width: 640px) {
+    .recommend-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .recommend-list a {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+    padding: var(--s-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    text-decoration: none;
+    height: 100%;
+    transition: border-color var(--motion-150) var(--ease-out);
+  }
+  .recommend-list a:hover {
+    border-color: var(--accent);
+  }
+  .recommend-list small {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen.is-active,
+    .screen.is-active .option,
+    .feedback-box,
+    .result-emoji {
+      animation: fade var(--motion-100) linear both;
+      animation-delay: 0ms;
+    }
+    @keyframes fade {
+      from {
+        opacity: 0;
+      }
+    }
+    .screen.is-active .progress-fill {
+      animation: none;
+    }
+  }
+</style>

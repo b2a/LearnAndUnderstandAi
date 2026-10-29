@@ -1,0 +1,173 @@
+---
+import { getCollection } from 'astro:content';
+
+const items = (await getCollection('meilensteine')).sort((a, b) => a.data.year - b.data.year);
+---
+
+<div class="timeline" data-timeline>
+  <div class="rail" aria-hidden="true"><span class="rail-fill" data-rail-fill></span></div>
+  <ol>
+    {
+      items.map((m) => (
+        <li class="item reveal" data-lvl={m.data.key ? undefined : 'anwender profi'} style={`--i:0`}>
+          <span class="dot" aria-hidden="true" />
+          <div class="item-card card">
+            <div class="item-meta">
+              <span class="year">{m.data.year}</span>
+              <span class="badge">{m.data.area}</span>
+            </div>
+            <h3>{m.data.title}</h3>
+            <p>{m.data.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+  <p class="timeline-note muted" data-lvl="einsteiger">
+    Wir zeigen dir hier die wichtigsten Meilensteine. Wähle oben eine höhere Stufe, um die komplette Zeitleiste zu sehen.
+  </p>
+</div>
+
+<script>
+  // Die Linie füllt sich beim Scrollen (nur transform → flüssig).
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLElement>('[data-timeline]').forEach((tl) => {
+    const fill = tl.querySelector<HTMLElement>('[data-rail-fill]')!;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      if (reduce.matches) {
+        fill.style.transform = 'scaleY(1)';
+        return;
+      }
+      const r = tl.getBoundingClientRect();
+      const progress = (window.innerHeight * 0.6 - r.top) / r.height;
+      fill.style.transform = `scaleY(${Math.max(0, Math.min(1, progress))})`;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
+
+    // Sichtbare Einträge abwechselnd links/rechts anordnen (abhängig von der Stufe)
+    const alternate = () => {
+      let n = 0;
+      tl.querySelectorAll<HTMLElement>('.item').forEach((item) => {
+        const visible = getComputedStyle(item).display !== 'none';
+        item.classList.toggle('is-right', visible && n % 2 === 1);
+        if (visible) n++;
+      });
+      update();
+    };
+    document.addEventListener('ki:level', alternate);
+    alternate();
+  });
+</script>
+
+<style>
+  .timeline {
+    position: relative;
+    margin-top: var(--s-6);
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s-4);
+  }
+  .rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 11px;
+    width: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rail-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: top;
+    transform: scaleY(0);
+  }
+  .item {
+    position: relative;
+    padding-left: 40px;
+  }
+  .dot {
+    position: absolute;
+    left: 5px;
+    top: 22px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .item-card {
+    padding: var(--s-4) var(--s-5);
+  }
+  .item-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .item-card h3 {
+    margin-bottom: var(--s-1);
+  }
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-2);
+  }
+  .year {
+    font-weight: 800;
+    font-size: var(--text-lg);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .timeline-note {
+    margin-top: var(--s-4);
+    font-size: var(--text-sm);
+  }
+
+  /* Ab Tablet: Karten abwechselnd links und rechts */
+  @media (min-width: 900px) {
+    .rail {
+      left: 50%;
+      transform: translateX(-1px);
+    }
+    ol {
+      gap: var(--s-2);
+    }
+    .item {
+      width: 50%;
+      padding-left: 0;
+      padding-right: 40px;
+    }
+    .dot {
+      left: auto;
+      right: -7px;
+    }
+    .item.is-right {
+      margin-left: 50%;
+      padding-left: 40px;
+      padding-right: 0;
+    }
+    .item.is-right .dot {
+      right: auto;
+      left: -7px;
+    }
+  }
+</style>

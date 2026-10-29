@@ -1,0 +1,57 @@
+---
+title: Mobilität & Robotik
+icon: 🚗
+order: 8
+tagline: Autos ohne Fahrer, Roboter mit Fingerspitzengefühl.
+interests: [technik]
+explain:
+  einsteiger: In einigen Städten fahren schon Taxis ganz ohne Menschen am Steuer. Und Roboter lernen dank KI, Dinge zu greifen und sich in neuen Umgebungen zurechtzufinden.
+  anwender: Autonome Fahrzeuge kombinieren Kameras, Radar und Lidar mit KI, die Verkehrssituationen erkennt und vorhersagt. In der Robotik ersetzt Lernen aus Beispielen zunehmend starre Programmierung.
+  profi: Robotaxi-Flotten fahren kommerziell ohne Sicherheitsfahrer:in; End-to-End-Ansätze und Vision-Language-Action-Modelle übertragen Foundation-Model-Prinzipien auf Wahrnehmung und Steuerung.
+achievements:
+  - { year: '2005', text: 'Ein autonomes Auto der Stanford University gewinnt ein 200-km-Wüstenrennen ohne Fahrer.' }
+  - { year: '2020', text: 'Die ersten öffentlichen Robotaxis ohne Sicherheitsfahrer:in nehmen Fahrgäste mit (Phoenix, USA).' }
+  - { year: '2024', text: 'Humanoide Roboter werden in ersten Fabriken getestet.' }
+  - { year: '2025', text: 'Robotaxis fahren in mehreren Städten in den USA und China – Millionen Fahrten pro Jahr.' }
+future:
+  - Robotaxis und autonome Lkw in mehr Ländern und bei schwierigerem Wetter.
+  - Roboter, die neue Handgriffe durch Zuschauen lernen – erst in Lagern, später im Haushalt.
+  - Pflege- und Assistenzroboter, die im Alltag unterstützen.
+tryIt: 'Erkläre mir, welche Sensoren ein selbstfahrendes Auto hat und wofür jeder davon gut ist – als kurze Tabelle.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Fahrassistenz:** Spurhalten, Abstandsregelung, Notbremsung und Einparken sind in vielen Neuwagen Standard.
+- **Robotaxis:** In ausgewählten Städten fahren Taxis vollständig autonom.
+- **Logistik:** Roboter sortieren Pakete, Drohnen und Lieferroboter testen die „letzte Meile“.
+- **Industrie:** Roboter erkennen Teile, greifen flexibel und prüfen Qualität mit Kameras.
+- **Navigation:** Routenplanung und Stauprognosen nutzen KI seit Jahren.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Ein selbstfahrendes Auto hat viele „Augen“: Kameras, Radar und Laser-Scanner. Die KI erkennt darauf Autos, Fußgänger, Ampeln und Schilder und schätzt, was als Nächstes passiert: Läuft das Kind gleich auf die Straße? Dann entscheidet sie in Sekundenbruchteilen, wie das Auto reagiert.
+
+</Level>
+
+<Level for="anwender">
+
+Autonomes Fahren besteht aus **Wahrnehmen** (Was ist um mich herum?), **Vorhersagen** (Was machen die anderen?) und **Planen** (Was mache ich?). Trainiert wird mit Millionen gefahrener und simulierter Kilometer. Das Schwierigste sind seltene Situationen – ein Pferd auf der Autobahn, ein Polizist, der per Hand regelt.
+
+Bei Robotern ist die Herausforderung noch größer: Die echte Welt ist unordentlich. Neue Ansätze lassen Roboter aus Videos und Vorführungen lernen.
+
+</Level>
+
+<Level for="profi">
+
+Der Trend geht von modularen Pipelines zu **End-to-End-Modellen**, die Sensordaten direkt auf Trajektorien abbilden, unterstützt durch Weltmodelle und massive Simulation. In der Robotik übertragen **Vision-Language-Action-Modelle** (VLA) vortrainiertes Weltwissen auf Steuerbefehle; Daten-Skalierung über Teleoperation, Simulation (Sim-to-Real) und Cross-Embodiment-Datensätze ist der Engpass. Sicherheit erfordert Nachweise über Milliarden Meilen bzw. formale Validierung seltener Szenarien.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Assistenzsysteme im eigenen Auto sind kein Autopilot – du bleibst verantwortlich.
+- Haftung bei Unfällen autonomer Fahrzeuge ist rechtlich noch in Bewegung.

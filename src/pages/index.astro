@@ -1,0 +1,171 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Quiz from '../components/Quiz.astro';
+import NeuralNet from '../components/NeuralNet.astro';
+import { journey } from '../data/journey';
+import { url } from '../lib/url';
+
+const topics = (await getCollection('themen', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((t) => ({ slug: t.id, title: t.data.title, icon: t.data.icon, tagline: t.data.tagline, interests: t.data.interests }));
+
+const stations = await Promise.all(
+  journey.map(async (s) => {
+    if (s.type === 'kapitel') {
+      const k = await getEntry('kapitel', s.id);
+      return { id: s.id, title: k?.data.title ?? s.id, icon: k?.data.icon ?? '📘' };
+    }
+    return { id: s.id, title: s.title ?? s.id, icon: s.icon ?? '📘' };
+  }),
+);
+---
+
+<Base current="start">
+  <section class="hero container">
+    <div class="hero-text">
+      <span class="kicker">Lernreise · Künstliche Intelligenz</span>
+      <h1>KI verstehen – <span class="accent">in deinem Tempo.</span></h1>
+      <p class="lead">
+        Was kann KI heute wirklich, was hat sie schon erreicht und was kommt noch? Beantworte ein paar Fragen und wir
+        stellen dir eine kompakte Reise zusammen, die zu deinem Wissensstand passt.
+      </p>
+    </div>
+
+    <div class="hero-grid">
+      <Quiz topics={topics} />
+      <aside class="hero-visual" aria-label="Animiertes neuronales Netz">
+        <NeuralNet />
+        <p class="visual-caption muted">
+          So ähnlich „denkt“ ein neuronales Netz: Signale wandern von Schicht zu Schicht. Jede deiner Antworten schickt
+          einen Impuls hindurch.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="container stations-preview">
+    <h2 class="reveal">Das erwartet dich</h2>
+    <ol class="station-list">
+      {
+        stations.map((s, i) => (
+          <li class="reveal" style={`--i:${i}`}>
+            <a href={url(`reise/#${s.id}`)}>
+              <span class="station-num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="station-icon" aria-hidden="true">
+                {s.icon}
+              </span>
+              <span class="station-title">{s.title}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: var(--s-7);
+  }
+  .hero-text {
+    max-width: 48rem;
+    margin-bottom: var(--s-6);
+  }
+  .hero-text > * {
+    animation: hero-in var(--motion-300) var(--ease-out) both;
+  }
+  .hero-text > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .hero-text > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .hero-grid {
+    display: grid;
+    gap: var(--s-6);
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
+    .hero-visual {
+      position: sticky;
+      top: 90px;
+    }
+  }
+  .hero-visual {
+    max-width: 420px;
+  }
+  @media (min-width: 960px) {
+    .hero-visual {
+      max-width: none;
+    }
+  }
+  .visual-caption {
+    font-size: var(--text-sm);
+    margin-top: var(--s-3);
+  }
+
+  .stations-preview {
+    margin-top: var(--s-9);
+  }
+  .station-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-5) 0 0;
+    display: grid;
+    gap: var(--s-3);
+  }
+  @media (min-width: 640px) {
+    .station-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 960px) {
+    .station-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .station-list a {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    height: 100%;
+    transition: border-color var(--motion-150) var(--ease-out);
+  }
+  .station-list a:hover {
+    border-color: var(--accent);
+  }
+  .station-num {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .station-icon {
+    font-size: 1.25rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-text > * {
+      animation: none;
+    }
+  }
+</style>

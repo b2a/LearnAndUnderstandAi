@@ -1,0 +1,58 @@
+---
+title: Sprache, Audio & Musik
+icon: 🎧
+order: 3
+tagline: Zuhören, sprechen, komponieren – KI hat eine Stimme bekommen.
+interests: [audio]
+explain:
+  einsteiger: Du kannst mit KI sprechen wie mit einem Menschen. Sie schreibt Gesprochenes mit, liest Texte natürlich vor und komponiert sogar ganze Lieder.
+  anwender: Spracherkennung (Speech-to-Text), Sprachsynthese (Text-to-Speech) und Musikgenerierung sind so gut geworden, dass Echtzeitgespräche mit KI und Stimmklone aus wenigen Sekunden Audio möglich sind.
+  profi: End-to-End-Sprachmodelle verarbeiten Audio-Token direkt statt über Text-Pipelines, was Latenz senkt und Prosodie erhält. Musikmodelle kombinieren Audio-Tokenizer mit Transformer- oder Diffusions-Generatoren.
+achievements:
+  - { year: '2011', text: 'Siri bringt Sprachassistenten auf Millionen Smartphones.' }
+  - { year: '2016', text: 'WaveNet erzeugt erstmals sehr natürlich klingende Computerstimmen.' }
+  - { year: '2022', text: 'Whisper transkribiert Sprache in fast 100 Sprachen auf menschlichem Niveau – frei verfügbar.' }
+  - { year: '2024', text: 'Echtzeit-Sprachgespräche mit KI und komplette Songs mit Gesang aus einer Textbeschreibung.' }
+future:
+  - Simultandolmetschen im Gespräch – mit deiner eigenen Stimme in einer fremden Sprache.
+  - Sprachassistenten, die Gefühle und Tonfall wirklich berücksichtigen.
+  - Neue Regeln für Musikrechte und Vergütung von Künstler:innen.
+tryIt: 'Schreibe einen kurzen Songtext über einen Montagmorgen mit zu wenig Kaffee – Refrain zum Mitsingen, Stil: Indie-Pop.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Mitschreiben:** Meetings, Interviews und Vorlesungen werden automatisch transkribiert und zusammengefasst.
+- **Vorlesen:** Bücher, Artikel und Nachrichten klingen dank KI-Stimmen fast wie von Sprecher:innen gelesen.
+- **Gespräche führen:** Sprachmodi von KI-Assistenten reagieren in Echtzeit, lassen sich unterbrechen und erkennen Tonfall.
+- **Barrierefreiheit:** Live-Untertitel für gehörlose Menschen, Stimmen für Menschen, die ihre eigene verloren haben.
+- **Musik machen:** Melodien, Begleitungen oder komplette Songs mit Gesang aus einer kurzen Beschreibung.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Für eine KI ist Ton zunächst nur eine lange Zahlenreihe – wie die Wellenlinie, die du in einem Audioprogramm siehst. Durch Tausende Stunden Aufnahmen mit passendem Text hat sie gelernt, welche Wellenmuster zu welchen Wörtern gehören. Beim Sprechen geht es andersherum: Aus Text werden passende Wellen.
+
+</Level>
+
+<Level for="anwender">
+
+Früher liefen Sprachassistenten in drei Schritten: Sprache → Text → Antwort als Text → Sprache. Neue Modelle verarbeiten Audio **direkt**. Das macht sie schneller und sie hören auch, *wie* etwas gesagt wird – Zögern, Lachen, Ironie.
+
+Stimmklone sind möglich, weil die Modelle gelernt haben, Klangfarbe und Inhalt zu trennen: Wenige Sekunden einer Stimme reichen, um ihren „Fingerabdruck“ auf neue Sätze zu übertragen.
+
+</Level>
+
+<Level for="profi">
+
+Neuronale **Audio-Codecs** komprimieren Wellenformen in diskrete Token mit mehreren Codebooks (Residual Vector Quantization). Darauf arbeiten autoregressive Transformer oder Diffusions-/Flow-Modelle. Nativ multimodale Modelle teilen sich den Token-Raum zwischen Text und Audio und ermöglichen Full-Duplex-Dialoge mit Latenzen im Bereich menschlicher Gesprächspausen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- **Enkeltrick 2.0:** Betrüger:innen klonen Stimmen von Angehörigen. Vereinbart in der Familie ein Codewort.
+- Gespräche nur aufnehmen und transkribieren, wenn alle zustimmen.
+- KI-Musik wirft offene Fragen zu Urheberrecht und fairer Bezahlung auf.

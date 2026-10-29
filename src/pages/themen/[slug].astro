@@ -1,0 +1,316 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import LevelSwitcher from '../../components/LevelSwitcher.astro';
+import { levels } from '../../data/levels';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const topics = (await getCollection('themen', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+  return topics.map((topic, i) => ({
+    params: { slug: topic.id },
+    props: { topic, prev: topics[i - 1], next: topics[i + 1] },
+  }));
+}
+
+interface Props {
+  topic: CollectionEntry<'themen'>;
+  prev?: CollectionEntry<'themen'>;
+  next?: CollectionEntry<'themen'>;
+}
+const { topic, prev, next } = Astro.props;
+const d = topic.data;
+const { Content } = await render(topic);
+---
+
+<Base title={d.title} description={d.tagline} current="themen">
+  <article class="container topic">
+    <a class="back" href={url('reise/#faehigkeiten')}>← Zurück zur Lernreise</a>
+
+    <header class="topic-hero">
+      <span class="hero-icon" aria-hidden="true">{d.icon}</span>
+      <div>
+        <span class="kicker">KI-Fähigkeit</span>
+        <h1>{d.title}</h1>
+        <p class="lead">{d.tagline}</p>
+      </div>
+    </header>
+
+    <LevelSwitcher compact />
+
+    <div class="layout">
+      <div class="main">
+        <section class="summary card reveal" aria-label="Kurz gesagt">
+          <h2 class="summary-title">Kurz gesagt</h2>
+          {levels.map((l) => <p data-lvl={l.id}>{d.explain[l.id]}</p>)}
+        </section>
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {
+          d.tryIt && (
+            <section class="try card reveal" aria-labelledby="try-title">
+              <h2 id="try-title">Probier's selbst aus</h2>
+              <p class="muted">Kopiere diesen Prompt in einen KI-Assistenten deiner Wahl:</p>
+              <blockquote class="prompt" data-prompt-text>
+                {d.tryIt}
+              </blockquote>
+              <button type="button" class="btn btn-ghost" data-copy>
+                <span data-copy-label>Prompt kopieren</span>
+              </button>
+              <span class="copy-status" role="status" data-copy-status />
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="side">
+        <section class="side-block reveal">
+          <h2>Errungenschaften</h2>
+          <ol class="mini-timeline">
+            {
+              d.achievements.map((a) => (
+                <li>
+                  <span class="year">{a.year}</span>
+                  <span>{a.text}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+        <section class="side-block reveal">
+          <h2>Was noch kommt</h2>
+          <ul class="future-list">{d.future.map((f) => <li>{f}</li>)}</ul>
+        </section>
+      </aside>
+    </div>
+
+    <nav class="pager" aria-label="Weitere Themen">
+      {
+        prev ? (
+          <a href={url(`themen/${prev.id}/`)} class="pager-link">
+            <small>← Vorheriges Thema</small>
+            <span>
+              {prev.data.icon} {prev.data.title}
+            </span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a href={url(`themen/${next.id}/`)} class="pager-link pager-next">
+            <small>Nächstes Thema →</small>
+            <span>
+              {next.data.icon} {next.data.title}
+            </span>
+          </a>
+        ) : (
+          <a href={url('reise/#meilensteine')} class="pager-link pager-next">
+            <small>Weiter auf der Reise →</small>
+            <span>🏁 Meilensteine</span>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = document.querySelector('[data-prompt-text]')?.textContent?.trim() ?? '';
+      const status = document.querySelector<HTMLElement>('[data-copy-status]')!;
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = '✓ Kopiert';
+      } catch {
+        status.textContent = 'Kopieren hat nicht geklappt – markiere den Text einfach von Hand.';
+      }
+      setTimeout(() => (status.textContent = ''), 2500);
+    });
+  });
+</script>
+
+<style>
+  .topic {
+    padding-top: var(--s-6);
+  }
+  .back {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: var(--s-5);
+  }
+  .topic-hero {
+    display: flex;
+    gap: var(--s-5);
+    align-items: flex-start;
+    margin-bottom: var(--s-5);
+  }
+  .hero-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    font-size: 2.5rem;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    animation: icon-in var(--motion-300) var(--ease-out) both;
+  }
+  @keyframes icon-in {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+  }
+  @media (max-width: 560px) {
+    .topic-hero {
+      flex-direction: column;
+      gap: var(--s-3);
+    }
+    .hero-icon {
+      width: 56px;
+      height: 56px;
+      font-size: 2rem;
+    }
+  }
+  .layout {
+    display: grid;
+    gap: var(--s-7);
+    margin-top: var(--s-6);
+  }
+  @media (min-width: 1024px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 300px;
+    }
+    .side {
+      position: sticky;
+      top: 90px;
+      align-self: start;
+    }
+  }
+  .main {
+    min-width: 0;
+  }
+  .summary {
+    padding: var(--s-4) var(--s-5);
+    border-left: 3px solid var(--accent);
+    margin-bottom: var(--s-5);
+  }
+  .summary-title {
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: var(--s-2);
+  }
+  .summary p {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  .try {
+    padding: var(--s-5);
+    margin-top: var(--s-7);
+  }
+  .try h2 {
+    font-size: var(--text-xl);
+  }
+  .prompt {
+    margin: 0 0 var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+  .copy-status {
+    margin-left: var(--s-3);
+    font-size: var(--text-sm);
+    color: var(--good);
+    font-weight: 600;
+  }
+  .side-block {
+    margin-bottom: var(--s-6);
+  }
+  .side-block h2 {
+    font-size: var(--text-lg);
+  }
+  .mini-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--s-4);
+    border-left: 2px solid var(--border);
+    display: grid;
+    gap: var(--s-3);
+    font-size: var(--text-sm);
+  }
+  .mini-timeline li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .mini-timeline li::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--s-4) - 6px);
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .year {
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .future-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: var(--text-sm);
+    display: grid;
+    gap: var(--s-2);
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+    margin-top: var(--s-8);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--border);
+  }
+  .pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    transition: border-color var(--motion-150) var(--ease-out);
+  }
+  .pager-link:hover {
+    border-color: var(--accent);
+  }
+  .pager-link small {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .pager-next {
+    text-align: right;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-icon {
+      animation: none;
+    }
+  }
+</style>

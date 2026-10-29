@@ -1,0 +1,346 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import LevelSwitcher from '../components/LevelSwitcher.astro';
+import TopicGrid from '../components/TopicGrid.astro';
+import Timeline from '../components/Timeline.astro';
+import FutureGrid from '../components/FutureGrid.astro';
+import { journey } from '../data/journey';
+
+const stations = await Promise.all(
+  journey.map(async (s, i) => {
+    const num = i + 1;
+    if (s.type === 'kapitel') {
+      const entry = await getEntry('kapitel', s.id);
+      if (!entry) throw new Error(`Kapitel "${s.id}" fehlt in src/content/kapitel/`);
+      const { Content } = await render(entry);
+      return { ...s, num, title: entry.data.title, kicker: entry.data.kicker, icon: entry.data.icon, Content };
+    }
+    return { ...s, num, title: s.title ?? s.id, kicker: s.kicker ?? '', icon: s.icon ?? '📘', Content: null };
+  }),
+);
+---
+
+<Base title="Deine Lernreise" current="reise">
+  <div class="progress-bar" aria-hidden="true"><span data-scroll-progress></span></div>
+
+  <header class="container journey-head">
+    <span class="kicker">Deine Lernreise</span>
+    <h1>Von den Grundlagen bis zur Zukunft</h1>
+    <p class="lead">
+      {stations.length} Stationen, etwa 20 Minuten. Alle Erklärungen passen sich deiner Stufe an – du kannst sie jederzeit
+      umschalten.
+    </p>
+    <LevelSwitcher />
+  </header>
+
+  <div class="container layout">
+    <nav class="stepper" aria-label="Stationen der Lernreise">
+      <p class="stepper-title">
+        Fortschritt: <strong data-progress-count>0</strong> / {stations.length}
+      </p>
+      <ol>
+        {
+          stations.map((s) => (
+            <li>
+              <a href={`#${s.id}`} data-step={s.id}>
+                <span class="step-dot" aria-hidden="true">
+                  <span class="step-num">{s.num}</span>
+                  <span class="step-check">✓</span>
+                </span>
+                <span class="step-label">{s.title}</span>
+                <span class="visually-hidden" data-step-status />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="stations">
+      {
+        stations.map((s) => (
+          <section class="station" id={s.id} data-station={s.id} aria-labelledby={`h-${s.id}`}>
+            <header class="station-head reveal">
+              <span class="station-icon" aria-hidden="true">
+                {s.icon}
+              </span>
+              <span class="kicker">
+                Station {s.num}
+                {s.kicker && ` · ${s.kicker}`}
+              </span>
+              <h2 id={`h-${s.id}`}>{s.title}</h2>
+              {s.intro && <p class="lead">{s.intro}</p>}
+            </header>
+
+            {s.type === 'kapitel' && s.Content && (
+              <div class="prose">
+                <s.Content />
+              </div>
+            )}
+            {s.type === 'themen' && <TopicGrid />}
+            {s.type === 'meilensteine' && <Timeline />}
+            {s.type === 'zukunft' && <FutureGrid />}
+          </section>
+        ))
+      }
+
+      <section class="finish card reveal" aria-labelledby="finish-title">
+        <span class="finish-emoji" aria-hidden="true">🎉</span>
+        <h2 id="finish-title">Geschafft!</h2>
+        <p data-finish-text>
+          Du hast die Lernreise abgeschlossen. Stöbere jetzt in den Themenseiten oder mach das Quiz noch einmal – vielleicht
+          bist du inzwischen eine Stufe weiter.
+        </p>
+        <div class="finish-actions">
+          <a class="btn btn-primary" href="#faehigkeiten">Themen vertiefen</a>
+          <a class="btn btn-ghost" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/#quiz-start`}>Quiz wiederholen</a>
+        </div>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { getVisited, markVisited } from '../scripts/profile';
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Fortschrittsbalken oben (Scroll-Position)
+  const bar = document.querySelector<HTMLElement>('[data-scroll-progress]')!;
+  let ticking = false;
+  const updateBar = () => {
+    ticking = false;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateBar);
+      }
+    },
+    { passive: true },
+  );
+  updateBar();
+
+  // Stationen: aktive markieren + als besucht speichern
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('[data-step]')].map((a) => [a.dataset.step!, a]),
+  );
+  const count = document.querySelector<HTMLElement>('[data-progress-count]')!;
+
+  function paintVisited() {
+    const visited = new Set(getVisited());
+    links.forEach((a, id) => {
+      const done = visited.has(id);
+      a.classList.toggle('is-done', done);
+      a.querySelector('[data-step-status]')!.textContent = done ? '(besucht)' : '';
+    });
+    count.textContent = String([...links.keys()].filter((id) => visited.has(id)).length);
+  }
+  paintVisited();
+
+  // Eine Station gilt als besucht, wenn sie ein paar Sekunden im Blick war.
+  const timers = new Map<string, number>();
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const id = (e.target as HTMLElement).dataset.station!;
+        if (!e.isIntersecting) {
+          clearTimeout(timers.get(id));
+          continue;
+        }
+        links.forEach((a, key) => {
+          if (key === id) a.setAttribute('aria-current', 'step');
+          else a.removeAttribute('aria-current');
+        });
+        timers.set(
+          id,
+          window.setTimeout(() => {
+            markVisited(id);
+            paintVisited();
+          }, 2500),
+        );
+      }
+    },
+    { rootMargin: '-35% 0px -55% 0px' },
+  );
+  document.querySelectorAll('[data-station]').forEach((s) => io.observe(s));
+
+  if (reduce.matches) document.documentElement.style.scrollBehavior = 'auto';
+</script>
+
+<style>
+  .progress-bar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 49;
+    pointer-events: none;
+  }
+  .progress-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  .journey-head {
+    padding-top: var(--s-7);
+    padding-bottom: var(--s-6);
+  }
+  .journey-head .lead {
+    margin-bottom: var(--s-5);
+  }
+  .layout {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 1024px) {
+    .layout {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+  }
+
+  /* Stepper (nur Desktop) */
+  .stepper {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .stepper {
+      display: block;
+      position: sticky;
+      top: 90px;
+      align-self: start;
+    }
+  }
+  .stepper-title {
+    font-size: var(--text-sm);
+    color: var(--muted);
+    margin-bottom: var(--s-3);
+  }
+  .stepper ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  .stepper ol::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 14px;
+    bottom: 14px;
+    width: 2px;
+    background: var(--border);
+  }
+  .stepper a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 44px;
+    padding: var(--s-1) 0;
+    line-height: 1.35;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition: color var(--motion-150) var(--ease-out);
+  }
+  .stepper a:hover,
+  .stepper a[aria-current='step'] {
+    color: var(--ink);
+  }
+  .step-dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition:
+      border-color var(--motion-200) var(--ease-out),
+      background-color var(--motion-200) var(--ease-out);
+  }
+  .step-num,
+  .step-check {
+    grid-area: 1 / 1;
+    transition:
+      opacity var(--motion-200) var(--ease-out),
+      transform var(--motion-200) var(--ease-out);
+  }
+  .step-check {
+    opacity: 0;
+    transform: scale(0.6);
+    color: var(--accent-ink);
+  }
+  .stepper a[aria-current='step'] .step-dot {
+    border-color: var(--accent);
+  }
+  .stepper a.is-done .step-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .stepper a.is-done .step-num {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  .stepper a.is-done .step-check {
+    opacity: 1;
+    transform: none;
+  }
+
+  .station {
+    padding-bottom: var(--s-9);
+    min-width: 0;
+  }
+  .station + .station {
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--border);
+  }
+  .station-head {
+    margin-bottom: var(--s-4);
+  }
+  .station-icon {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: var(--s-2);
+  }
+
+  .finish {
+    padding: var(--s-6);
+    text-align: center;
+  }
+  .finish-emoji {
+    font-size: 2.5rem;
+  }
+  .finish p {
+    max-width: var(--prose);
+    margin-inline: auto;
+  }
+  .finish-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step-num,
+    .step-check {
+      transform: none !important;
+      transition: opacity var(--motion-100) linear;
+    }
+  }
+</style>

@@ -1,0 +1,183 @@
+---
+/**
+ * Animiertes neuronales Netz.
+ * Reagiert auf das Event `ki:pulse` (z. B. bei jeder Quiz-Antwort) und auf Mausbewegung.
+ *   document.dispatchEvent(new CustomEvent('ki:pulse', { detail: { strength: 2 } }))
+ */
+interface Props {
+  layers?: number[];
+  label?: string;
+}
+const { layers = [3, 5, 5, 4, 2], label = 'Schematisches neuronales Netz' } = Astro.props;
+
+const W = 480;
+const H = 320;
+const padX = 40;
+const padY = 36;
+const nodes = layers.map((count, li) => {
+  const x = padX + (li * (W - 2 * padX)) / (layers.length - 1);
+  return Array.from({ length: count }, (_, ni) => {
+    const y = count === 1 ? H / 2 : padY + (ni * (H - 2 * padY)) / (count - 1);
+    return { x, y, id: `${li}-${ni}` };
+  });
+});
+const edges = nodes.slice(0, -1).flatMap((layer, li) =>
+  layer.flatMap((a) => nodes[li + 1].map((b) => ({ a, b, id: `${a.id}_${b.id}` }))),
+);
+---
+
+<div class="nn" data-nn>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+    <g class="edges">
+      {edges.map((e) => <line x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y} />)}
+    </g>
+    <g class="edges-active">
+      {edges.map((e) => <line data-edge={e.id} x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y} />)}
+    </g>
+    <g class="nodes">
+      {
+        nodes.map((layer, li) =>
+          layer.map((n) => (
+            <g class="node" style={`--li:${li}`}>
+              <circle class="halo" data-halo={n.id} cx={n.x} cy={n.y} r="16" />
+              <circle class="core" data-node={n.id} cx={n.x} cy={n.y} r="8" />
+            </g>
+          )),
+        )
+      }
+    </g>
+  </svg>
+  <div class="nn-labels" aria-hidden="true">
+    <span>Eingabe</span><span>Verarbeitung</span><span>Ausgabe</span>
+  </div>
+</div>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-nn]').forEach((root) => {
+    const svg = root.querySelector('svg')!;
+    const layerSizes: number[] = [];
+    svg.querySelectorAll<SVGCircleElement>('[data-node]').forEach((c) => {
+      const [li] = c.dataset.node!.split('-').map(Number);
+      layerSizes[li] = (layerSizes[li] ?? 0) + 1;
+    });
+
+    const pick = (n: number, k: number) => {
+      const idx = Array.from({ length: n }, (_, i) => i).sort(() => Math.random() - 0.5);
+      return idx.slice(0, Math.min(k, n));
+    };
+
+    function pulse(strength = 1) {
+      const step = reduce.matches ? 0 : 110;
+      const path = layerSizes.map((n) => pick(n, strength === 3 ? n : strength));
+      path.forEach((chosen, li) => {
+        chosen.forEach((ni) => {
+          const id = `${li}-${ni}`;
+          const halo = svg.querySelector<SVGCircleElement>(`[data-halo="${id}"]`);
+          const core = svg.querySelector<SVGCircleElement>(`[data-node="${id}"]`);
+          const delay = li * step;
+          const haloFrames = reduce.matches
+            ? [{ opacity: 0 }, { opacity: 0.35 }, { opacity: 0 }]
+            : [
+                { opacity: 0, transform: 'scale(0.6)' },
+                { opacity: 0.4, transform: 'scale(1)' },
+                { opacity: 0, transform: 'scale(1.15)' },
+              ];
+          halo?.animate(haloFrames, { duration: 300, delay, easing: 'ease-out' });
+          core?.animate([{ fill: 'var(--surface)' }, { fill: 'var(--accent)' }, { fill: 'var(--surface)' }], {
+            duration: 300,
+            delay,
+            easing: 'ease-out',
+          });
+          if (li < path.length - 1) {
+            path[li + 1].forEach((nj) => {
+              const edge = svg.querySelector(`[data-edge="${id}_${li + 1}-${nj}"]`);
+              edge?.animate([{ opacity: 0 }, { opacity: 0.9 }, { opacity: 0 }], {
+                duration: 300,
+                delay: delay + 40,
+                easing: 'ease-out',
+              });
+            });
+          }
+        });
+      });
+    }
+
+    document.addEventListener('ki:pulse', (e) => pulse((e as CustomEvent).detail?.strength ?? 1));
+
+    let last = 0;
+    root.addEventListener('pointermove', () => {
+      const now = performance.now();
+      if (now - last > 700) {
+        last = now;
+        pulse(1);
+      }
+    });
+
+    // Einmal beim Laden "einschalten"
+    root.classList.add('is-ready');
+    setTimeout(() => pulse(2), reduce.matches ? 0 : 500);
+  });
+</script>
+
+<style>
+  .nn {
+    position: relative;
+    width: 100%;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .edges line {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+  }
+  .edges-active line {
+    stroke: var(--accent);
+    stroke-width: 2;
+    opacity: 0;
+  }
+  .halo {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .core {
+    fill: var(--surface);
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
+  :global(html.js) .node {
+    opacity: 0;
+    transform: translateY(6px);
+    transform-box: fill-box;
+  }
+  :global(html.js) .is-ready .node {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--motion-300) var(--ease-out),
+      transform var(--motion-300) var(--ease-out);
+    transition-delay: calc(var(--li) * 80ms);
+  }
+  .nn-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 0 var(--s-2);
+    margin-top: var(--s-2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .node,
+    :global(html.js) .is-ready .node {
+      transform: none;
+      transition: opacity var(--motion-100) linear;
+      transition-delay: 0ms;
+    }
+  }
+</style>

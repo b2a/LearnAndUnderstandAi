@@ -1,0 +1,80 @@
+---
+/** Schaubild: Wie eine KI lernt – in vier Schritten. */
+const steps = [
+  { icon: '📚', title: 'Daten', text: 'Viele Beispiele: Texte, Bilder, Messwerte …' },
+  { icon: '🎯', title: 'Vorhersage', text: 'Das Modell rät, z. B. das nächste Wort.' },
+  { icon: '📏', title: 'Fehler messen', text: 'Wie weit lag es daneben?' },
+  { icon: '🔧', title: 'Anpassen', text: 'Stellschrauben minimal drehen – und wiederholen.' },
+];
+---
+
+<figure class="loop">
+  <ol>
+    {
+      steps.map((s, i) => (
+        <li class="step reveal" style={`--i:${i}`}>
+          <span class="num" aria-hidden="true">
+            {i + 1}
+          </span>
+          <span class="icon" aria-hidden="true">
+            {s.icon}
+          </span>
+          <strong>{s.title}</strong>
+          <span class="text">{s.text}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption class="muted">
+    Dieser Kreislauf läuft beim Training milliardenfach. Am Ende stecken die gelernten Muster in den Stellschrauben
+    (Parametern) des Modells.
+  </figcaption>
+</figure>
+
+<style>
+  .loop {
+    margin: var(--s-6) 0;
+  }
+  ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--s-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 720px) {
+    ol {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .num {
+    position: absolute;
+    top: var(--s-3);
+    right: var(--s-3);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .icon {
+    font-size: 1.5rem;
+  }
+  .text {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  figcaption {
+    font-size: var(--text-sm);
+    margin-top: var(--s-3);
+  }
+</style>

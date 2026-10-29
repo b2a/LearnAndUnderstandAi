@@ -1,0 +1,58 @@
+---
+title: KI-Agenten
+icon: 🤖
+order: 7
+tagline: Vom Antworten zum Handeln – KI, die Aufgaben selbstständig erledigt.
+interests: [arbeit, code]
+explain:
+  einsteiger: Ein KI-Agent beantwortet nicht nur Fragen, sondern erledigt Aufgaben für dich – zum Beispiel im Internet recherchieren, Dateien sortieren oder Formulare ausfüllen.
+  anwender: Agenten bekommen ein Ziel, planen die Schritte selbst und benutzen Werkzeuge wie Browser, Dateien, E-Mail oder Programme. Du überwachst und gibst wichtige Schritte frei.
+  profi: Agenten sind LLMs in einer Tool-Use-Schleife mit Planung, Gedächtnis und Selbstkorrektur. Standards wie MCP verbinden sie mit externen Systemen; Zuverlässigkeit über lange Horizonte und Sicherheit sind die Kernprobleme.
+achievements:
+  - { year: '2023', text: 'Erste experimentelle Agenten zeigen, dass Sprachmodelle Werkzeuge benutzen und Aufgaben zerlegen können.' }
+  - { year: '2024', text: 'KI kann einen Computer bedienen – Maus bewegen, klicken, tippen wie ein Mensch.' }
+  - { year: '2024', text: 'Das Model Context Protocol (MCP) wird als offener Standard für KI-Werkzeuge vorgestellt.' }
+  - { year: '2025', text: 'Deep-Research-Agenten erstellen in Minuten ausführliche Berichte mit Dutzenden Quellen.' }
+future:
+  - Agenten, die über Tage an einem Projekt arbeiten und sich zwischendurch abstimmen.
+  - Persönliche Agenten, die Termine, Reisen, Rechnungen und Behördenkram übernehmen.
+  - Neue Regeln dafür, was Agenten in deinem Namen tun dürfen (z. B. Bezahlen).
+tryIt: 'Recherchiere die drei wichtigsten Argumente für und gegen ein Tempolimit auf deutschen Autobahnen, jeweils mit Quelle, und fasse sie neutral in einer Tabelle zusammen.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Recherchieren:** Dutzende Webseiten durchsuchen, auswerten und mit Quellen zusammenfassen.
+- **Computer bedienen:** Programme öffnen, Formulare ausfüllen, Daten zwischen Anwendungen übertragen.
+- **Programmieren:** Ganze Aufgaben in Software-Projekten erledigen und testen.
+- **Daten analysieren:** Tabellen einlesen, Auswertungen rechnen, Diagramme erstellen.
+- **Routinen automatisieren:** E-Mails sortieren, Berichte vorbereiten, Informationen aus Dokumenten ziehen.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Ein normaler Chatbot ist wie ein kluger Freund am Telefon: Er kann dir sagen, was zu tun ist. Ein Agent ist wie ein Assistent, der selbst an den Computer geht und es erledigt. Er probiert etwas, schaut sich das Ergebnis an und macht weiter, bis die Aufgabe fertig ist – und fragt dich bei wichtigen Entscheidungen.
+
+</Level>
+
+<Level for="anwender">
+
+Ein Agent arbeitet in einer **Schleife**: Ziel verstehen → nächsten Schritt planen → Werkzeug benutzen (z. B. „suche im Web“, „öffne Datei“) → Ergebnis ansehen → weiter oder korrigieren. Je mehr Schritte eine Aufgabe hat, desto mehr kann schiefgehen – deshalb sind Zwischenkontrollen durch dich wichtig.
+
+</Level>
+
+<Level for="profi">
+
+Technisch: Das Modell gibt strukturierte **Tool Calls** aus, die ein Harness ausführt; Ergebnisse fließen zurück in den Kontext. Wichtige Bausteine sind Planung, Kontextmanagement (Zusammenfassen, externes Gedächtnis), Sub-Agenten für parallele Teilaufgaben und Evaluierung über lange Horizonte. Die Länge der Aufgaben, die Agenten zuverlässig schaffen, ist in den letzten Jahren stark gewachsen.
+
+Sicherheitsthemen: **Prompt Injection** über Webseiten und Dokumente, minimal nötige Rechte (Least Privilege), Sandboxing und menschliche Freigaben für folgenreiche Aktionen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Gib Agenten nur die Zugriffe, die sie wirklich brauchen.
+- Bei Geld, Verträgen und E-Mails an andere: Ergebnis vor dem Absenden prüfen.
+- Inhalte aus dem Internet können versteckte Anweisungen an die KI enthalten.

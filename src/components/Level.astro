@@ -1,0 +1,42 @@
+---
+/**
+ * Zeigt Inhalte nur für bestimmte Wissensstufen an.
+ * Verwendung in MDX:
+ *   <Level for="einsteiger">Einfache Erklärung …</Level>
+ *   <Level for="anwender profi">Für Fortgeschrittene …</Level>
+ */
+import { levels } from '../data/levels';
+
+interface Props {
+  for: string;
+  /** Kleines Etikett anzeigen, das die Stufe benennt (Standard: ja). */
+  label?: boolean;
+}
+const { for: forLevels, label = true } = Astro.props;
+const ids = forLevels.split(/\s+/);
+const names = levels.filter((l) => ids.includes(l.id));
+---
+
+<div class="level-block" data-lvl={forLevels}>
+  {
+    label && names.length < levels.length && (
+      <span class="level-tag">
+        {names.map((n) => n.emoji).join(' ')} Erklärt für: {names.map((n) => n.name).join(' & ')}
+      </span>
+    )
+  }
+  <slot />
+</div>
+
+<style>
+  .level-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin-bottom: var(--s-2);
+  }
+</style>

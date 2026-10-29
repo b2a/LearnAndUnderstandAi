@@ -1,0 +1,60 @@
+---
+title: Code & Software
+icon: 💻
+order: 4
+tagline: Vom Autovervollständigen zum KI-Entwickler, der ganze Features baut.
+interests: [code, arbeit]
+explain:
+  einsteiger: KI kann Computerprogramme schreiben. Du beschreibst in normaler Sprache, was du brauchst – etwa eine kleine Webseite oder eine Excel-Formel – und die KI erstellt den Code.
+  anwender: Coding-Assistenten schlagen Code vor, erklären Fehler und schreiben Tests. Coding-Agenten arbeiten selbstständig in ganzen Projekten – lesen Dateien, führen Befehle aus und prüfen ihre Arbeit.
+  profi: Agentische Coding-Systeme kombinieren starke Reasoning-Modelle mit Tool-Use (Shell, Editor, Tests, Browser) in langen Agent-Loops; RL auf ausführbaren Belohnungen (Tests bestehen) hat die Leistung auf Benchmarks wie SWE-bench stark gesteigert.
+achievements:
+  - { year: '2021', text: 'GitHub Copilot bringt KI-Autovervollständigung in den Code-Editor.' }
+  - { year: '2022', text: 'AlphaCode erreicht in Programmierwettbewerben das Niveau durchschnittlicher Teilnehmer:innen.' }
+  - { year: '2024', text: 'KI-Modelle lösen echte Fehlerberichte aus Open-Source-Projekten selbstständig.' }
+  - { year: '2025', text: 'Coding-Agenten arbeiten stundenlang an Aufgaben und bauen ganze Features – viele Entwickler:innen nutzen sie täglich.' }
+future:
+  - Software „auf Zuruf“ – auch Menschen ohne Programmierkenntnisse bauen eigene Werkzeuge.
+  - Teams aus mehreren KI-Agenten, die planen, programmieren, testen und Fehler beheben.
+  - Automatisches Finden und Schließen von Sicherheitslücken – auf beiden Seiten des Wettrüstens.
+tryIt: 'Ich habe eine Excel-Tabelle mit Spalte A = Datum und Spalte B = Ausgaben. Schreib mir eine Formel, die die Summe aller Ausgaben im aktuellen Monat berechnet, und erkläre sie Schritt für Schritt.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Code schreiben:** Von kleinen Skripten bis zu kompletten Web-Apps.
+- **Erklären:** Fremden oder alten Code verständlich machen – Zeile für Zeile.
+- **Fehler finden:** Fehlermeldungen deuten, Bugs aufspüren und beheben.
+- **Testen & Dokumentieren:** Tests und Dokumentation erstellen, die sonst gern liegen bleiben.
+- **Übersetzen:** Code von einer Programmiersprache in eine andere übertragen und Altsysteme modernisieren.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Programmiersprachen sind auch Sprachen – mit sehr strengen Regeln. Sprachmodelle haben Milliarden Zeilen öffentlichen Code gelesen und gelernt, wie Programme aufgebaut sind. Der Vorteil gegenüber normalem Text: Code kann man ausführen und sofort sehen, ob er funktioniert.
+
+</Level>
+
+<Level for="anwender">
+
+Ein **Coding-Agent** arbeitet in einer Schleife: Aufgabe verstehen → Dateien lesen → Plan machen → Code ändern → Tests laufen lassen → Fehler ansehen → korrigieren. Weil die KI das Ergebnis selbst überprüfen kann, wird sie viel zuverlässiger als bei reinen Textantworten.
+
+Tipp: Gute Ergebnisse brauchen klare Aufgaben, Beispiele und automatische Tests – genau wie bei menschlichen Kolleg:innen.
+
+</Level>
+
+<Level for="profi">
+
+Code ist eine ideale Domäne für **Reinforcement Learning mit verifizierbaren Belohnungen**: Unit-Tests, Compiler und Linter liefern objektives Feedback. Agent-Harnesses geben dem Modell Werkzeuge (Dateisystem, Shell, Suche, Browser) und verwalten Kontext über lange Sessions – etwa durch Zusammenfassen, Sub-Agenten und persistente Notizen.
+
+Offene Probleme: Verständnis großer Codebasen jenseits des Kontextfensters, subtile Architekturentscheidungen, Sicherheit bei Tool-Zugriff (Prompt Injection) und die Frage, wie Menschen KI-generierten Code effizient reviewen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- KI-Code kann Sicherheitslücken enthalten – vor dem produktiven Einsatz prüfen lassen.
+- Keine Passwörter oder Zugangsdaten in Prompts kopieren.
+- Wer versteht, was der Code tut, kann KI viel besser steuern.

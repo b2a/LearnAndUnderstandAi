@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import TopicCard from './TopicCard.astro';
+
+const topics = (await getCollection('themen', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="grid" data-topic-grid>
+  {topics.map((t, i) => <TopicCard topic={t} index={i} />)}
+</div>
+
+<script>
+  import { getProfile } from '../scripts/profile';
+
+  // Themen, die zu den Quiz-Interessen passen, markieren und nach vorne holen.
+  const interests = getProfile()?.interests ?? [];
+  if (interests.length) {
+    document.querySelectorAll<HTMLElement>('[data-topic-grid] [data-topic]').forEach((card) => {
+      const match = card.dataset.interests!.split(' ').some((i) => interests.includes(i as never));
+      if (!match) return;
+      card.classList.add('is-recommended');
+      card.style.order = '-1';
+      card.querySelector<HTMLElement>('[data-recommend-badge]')!.hidden = false;
+    });
+  }
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

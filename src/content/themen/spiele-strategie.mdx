@@ -1,0 +1,53 @@
+---
+title: Spiele & Strategie
+icon: ♟️
+order: 11
+tagline: Schach, Go, Poker, StarCraft – Spiele als Trainingsplatz für KI.
+interests: [wissen, code]
+explain:
+  einsteiger: KI schlägt die besten Menschen in Schach, Go und Poker. Spiele waren für die Forschung ein perfekter Übungsplatz, weil man genau messen kann, wer gewinnt.
+  anwender: Von handprogrammierten Regeln (Deep Blue) ging es zu Systemen, die durch Spielen gegen sich selbst lernen (AlphaZero). Diese Methoden stecken heute auch in Sprachmodellen.
+  profi: Reinforcement Learning mit Self-Play und Monte-Carlo-Tree-Search (AlphaGo/AlphaZero/MuZero) sowie Spieltheorie-Methoden (Pluribus) sind Vorläufer der heutigen RL-Verfahren beim Post-Training von LLMs.
+achievements:
+  - { year: '1997', text: 'Deep Blue besiegt Schachweltmeister Garri Kasparow.' }
+  - { year: '2016', text: 'AlphaGo schlägt Go-Legende Lee Sedol 4:1 – Jahre früher als erwartet.' }
+  - { year: '2017', text: 'AlphaZero lernt Schach, Go und Shogi nur durch Spiele gegen sich selbst – ohne menschliches Vorwissen.' }
+  - { year: '2019', text: 'KI besiegt Profis im Poker mit mehreren Gegnern und im Echtzeit-Strategiespiel StarCraft II.' }
+future:
+  - Spielfiguren und Welten, die sich mit KI live anpassen und frei sprechen.
+  - KI als persönlicher Trainer, der Spielstil analysiert und gezielt Übungen gibt.
+  - Selbstlernende Methoden aus Spielen für Logistik, Energie und Forschung.
+tryIt: 'Spiel mit mir eine Partie Tic-Tac-Toe. Zeig das Spielfeld nach jedem Zug und erkläre kurz deine Strategie.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Brettspiele:** Schach- und Go-Programme sind jedem Menschen weit überlegen – und Profis trainieren mit ihnen.
+- **Bluffen:** Poker-KI gewinnt gegen Profis, obwohl sie nicht alle Karten kennt.
+- **Videospiele:** KI meistert komplexe Echtzeit-Strategiespiele und steuert Spielfiguren.
+- **Spieleentwicklung:** Testen, Level-Design und lebendige Nebenfiguren mit KI.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+AlphaZero hat Schach gelernt, ohne je eine Partie von Menschen gesehen zu haben. Es kannte nur die Regeln und spielte Millionen Partien gegen sich selbst. Am Anfang zog es völlig zufällig – nach wenigen Stunden war es stärker als jedes Schachprogramm zuvor.
+
+</Level>
+
+<Level for="anwender">
+
+Das Prinzip heißt **Reinforcement Learning** (bestärkendes Lernen): Die KI probiert Züge aus und bekommt am Ende eine Belohnung (Sieg) oder Strafe (Niederlage). Mit der Zeit lernt sie, welche Züge langfristig zum Erfolg führen. Genau diese Idee nutzen heute auch Sprachmodelle, um besser zu rechnen und zu programmieren.
+
+</Level>
+
+<Level for="profi">
+
+AlphaZero kombiniert ein Policy/Value-Netz mit **Monte-Carlo-Tree-Search**; das Netz wird auf den durch die Suche verbesserten Zielen trainiert (Policy Iteration via Self-Play). MuZero lernt zusätzlich ein Modell der Spieldynamik. Bei imperfekter Information (Poker) kommen Counterfactual Regret Minimization und Echtzeit-Subgame-Solving zum Einsatz. Die Brücke zu LLMs: Suche und RL zur Inferenzzeit („Test-Time Compute“) sowie RL auf verifizierbaren Ergebnissen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Spiele sind abgeschlossene Welten mit klaren Regeln – die echte Welt ist viel unordentlicher. Erfolge im Spiel lassen sich nicht 1:1 übertragen.

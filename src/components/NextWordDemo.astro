@@ -1,0 +1,284 @@
+---
+/**
+ * Interaktive Demo: Wie ein Sprachmodell das nächste Wort auswählt.
+ * Die Wahrscheinlichkeiten sind zur Veranschaulichung ausgedacht.
+ */
+const prompts = [
+  {
+    text: 'Heute ist das Wetter wirklich',
+    words: [
+      ['schön', 0.38],
+      ['sonnig', 0.22],
+      ['schlecht', 0.16],
+      ['kalt', 0.12],
+      ['verrückt', 0.07],
+      ['philosophisch', 0.05],
+    ],
+  },
+  {
+    text: 'Zum Frühstück esse ich am liebsten',
+    words: [
+      ['Brötchen', 0.34],
+      ['Müsli', 0.27],
+      ['Obst', 0.16],
+      ['Eier', 0.13],
+      ['Pizza', 0.07],
+      ['Steine', 0.03],
+    ],
+  },
+  {
+    text: 'Künstliche Intelligenz kann uns helfen, besser zu',
+    words: [
+      ['lernen', 0.36],
+      ['arbeiten', 0.24],
+      ['verstehen', 0.18],
+      ['entscheiden', 0.12],
+      ['schlafen', 0.07],
+      ['tanzen', 0.03],
+    ],
+  },
+];
+---
+
+<div class="demo card" data-nextword data-prompts={JSON.stringify(prompts)}>
+  <div class="demo-head">
+    <span class="badge">Interaktiv</span>
+    <h3>Probier's aus: Das nächste Wort</h3>
+  </div>
+  <div class="prompt-tabs" role="group" aria-label="Satzanfang wählen">
+    {
+      prompts.map((_, i) => (
+        <button type="button" class="tab" data-prompt={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+          Satz {i + 1}
+        </button>
+      ))
+    }
+  </div>
+  <p class="sentence" aria-live="polite">
+    <span data-sentence></span> <span class="chosen" data-chosen>…</span>
+  </p>
+  <ul class="bars" data-bars></ul>
+
+  <div class="controls">
+    <button type="button" class="btn btn-primary" data-sample>Wort auswählen lassen</button>
+    <label class="temp" data-lvl="anwender profi">
+      <span>
+        Temperatur: <strong data-temp-value>1.0</strong>
+      </span>
+      <input type="range" min="0.2" max="2" step="0.1" value="1" data-temp />
+    </label>
+  </div>
+  <p class="explain muted" data-lvl="einsteiger">
+    Das Modell kennt für jedes mögliche nächste Wort eine Wahrscheinlichkeit. Meist gewinnt ein häufiges Wort – aber
+    nicht immer. Deshalb bekommst du auf dieselbe Frage manchmal unterschiedliche Antworten.
+  </p>
+  <p class="explain muted" data-lvl="anwender profi">
+    Die <strong>Temperatur</strong> steuert, wie „mutig“ ausgewählt wird: Niedrig = fast immer das wahrscheinlichste Wort
+    (präzise, aber eintönig). Hoch = auch seltene Wörter haben eine Chance (kreativ, aber fehleranfälliger).
+  </p>
+</div>
+
+<script>
+  type Prompt = { text: string; words: [string, number][] };
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-nextword]').forEach((root) => {
+    const prompts = JSON.parse(root.dataset.prompts!) as Prompt[];
+    const bars = root.querySelector<HTMLUListElement>('[data-bars]')!;
+    const sentence = root.querySelector<HTMLElement>('[data-sentence]')!;
+    const chosen = root.querySelector<HTMLElement>('[data-chosen]')!;
+    const temp = root.querySelector<HTMLInputElement>('[data-temp]')!;
+    const tempValue = root.querySelector<HTMLElement>('[data-temp-value]')!;
+    let current = 0;
+
+    const probs = () => {
+      const t = Number(temp.value);
+      const w = prompts[current].words.map(([, p]) => Math.pow(p, 1 / t));
+      const sum = w.reduce((a, b) => a + b, 0);
+      return w.map((x) => x / sum);
+    };
+
+    function render(rebuild = false) {
+      const p = prompts[current];
+      const ps = probs();
+      if (rebuild) {
+        sentence.textContent = p.text;
+        chosen.textContent = '…';
+        chosen.classList.remove('is-set');
+        bars.innerHTML = p.words
+          .map(
+            ([word], i) => `<li data-i="${i}"><span class="word">${word}</span>
+              <span class="track"><span class="fill"></span></span>
+              <span class="pct"></span></li>`,
+          )
+          .join('');
+      }
+      bars.querySelectorAll<HTMLElement>('li').forEach((li, i) => {
+        li.querySelector<HTMLElement>('.fill')!.style.transform = `scaleX(${ps[i]})`;
+        li.querySelector<HTMLElement>('.pct')!.textContent = `${Math.round(ps[i] * 100)} %`;
+      });
+    }
+
+    function sample() {
+      const ps = probs();
+      let r = Math.random();
+      let idx = ps.length - 1;
+      for (let i = 0; i < ps.length; i++) {
+        r -= ps[i];
+        if (r <= 0) {
+          idx = i;
+          break;
+        }
+      }
+      bars.querySelectorAll('li').forEach((li, i) => li.classList.toggle('is-picked', i === idx));
+      chosen.textContent = prompts[current].words[idx][0] + '.';
+      chosen.classList.remove('is-set');
+      void chosen.offsetWidth; // Animation neu starten
+      chosen.classList.add('is-set');
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-prompt]').forEach((b) =>
+      b.addEventListener('click', () => {
+        current = Number(b.dataset.prompt);
+        root.querySelectorAll('[data-prompt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        render(true);
+      }),
+    );
+    root.querySelector('[data-sample]')!.addEventListener('click', sample);
+    temp.addEventListener('input', () => {
+      tempValue.textContent = Number(temp.value).toFixed(1);
+      render();
+    });
+
+    render(true);
+    if (reduce.matches) root.classList.add('no-motion');
+  });
+</script>
+
+<style>
+  .demo {
+    padding: var(--s-5);
+    margin: var(--s-6) 0;
+  }
+  .demo-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-2);
+  }
+  .demo-head .badge {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .prompt-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin: var(--s-2) 0 var(--s-4);
+  }
+  .tab {
+    font: inherit;
+    font-size: var(--text-sm);
+    min-height: 36px;
+    padding: 0 var(--s-3);
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .tab[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .sentence {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    min-height: 2.4em;
+  }
+  .chosen {
+    color: var(--muted);
+  }
+  .chosen.is-set {
+    color: var(--accent);
+    display: inline-block;
+    animation: word-in var(--motion-300) var(--ease-out) both;
+  }
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  .bars {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--s-4);
+    display: grid;
+    gap: var(--s-2);
+  }
+  .bars :global(li) {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, auto) 1fr 3.2rem;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: var(--text-sm);
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background-color var(--motion-200) var(--ease-out);
+  }
+  .bars :global(li.is-picked) {
+    background: var(--accent-soft);
+    font-weight: 700;
+  }
+  .bars :global(.track) {
+    height: 10px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bars :global(.fill) {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform var(--motion-300) var(--ease-out);
+  }
+  .bars :global(.pct) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-4);
+    align-items: center;
+    margin-bottom: var(--s-3);
+  }
+  .temp {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    font-size: var(--text-sm);
+    min-width: 200px;
+  }
+  .temp input {
+    accent-color: var(--accent);
+  }
+  .explain {
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bars :global(.fill) {
+      transition: none;
+    }
+    .chosen.is-set {
+      animation: none;
+    }
+  }
+</style>

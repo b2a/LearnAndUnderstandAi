@@ -1,0 +1,124 @@
+---
+/** Umschalter zwischen den Wissensstufen. Speichert die Wahl im Browser. */
+import { levels } from '../data/levels';
+import { url } from '../lib/url';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+---
+
+<div class:list={['switcher', { compact }]} data-level-switcher>
+  <div class="switcher-head">
+    <span class="switcher-label" id="lvl-label">Erklärungen anpassen für:</span>
+    {
+      !compact && (
+        <a class="quiz-link" href={url('#quiz')} data-no-profile-hint>
+          Noch kein Quiz gemacht? Hier entlang →
+        </a>
+      )
+    }
+  </div>
+  <div class="segments" role="radiogroup" aria-labelledby="lvl-label">
+    {
+      levels.map((l) => (
+        <button type="button" role="radio" class="segment" data-set-level={l.id} aria-checked="false">
+          <span aria-hidden="true">{l.emoji}</span> {l.name}
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import { currentLevel, getProfile, setLevel } from '../scripts/profile';
+  import type { LevelId } from '../data/levels';
+
+  function sync() {
+    const lvl = currentLevel();
+    document.querySelectorAll<HTMLButtonElement>('[data-set-level]').forEach((b) => {
+      const on = b.dataset.setLevel === lvl;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+    const fromQuiz = getProfile()?.fromQuiz;
+    document.querySelectorAll<HTMLElement>('[data-no-profile-hint]').forEach((el) => (el.hidden = !!fromQuiz));
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-level-switcher]').forEach((sw) => {
+    const buttons = [...sw.querySelectorAll<HTMLButtonElement>('[data-set-level]')];
+    buttons.forEach((b, i) => {
+      b.addEventListener('click', () => {
+        setLevel(b.dataset.setLevel as LevelId);
+      });
+      // Pfeiltasten wie bei einer Radiogruppe
+      b.addEventListener('keydown', (e) => {
+        const dir = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const nb = buttons[(i + dir + buttons.length) % buttons.length];
+        nb.focus();
+        nb.click();
+      });
+    });
+  });
+  document.addEventListener('ki:level', sync);
+  sync();
+</script>
+
+<style>
+  .switcher {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+  }
+  .switcher-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-3);
+    align-items: baseline;
+    font-size: var(--text-sm);
+  }
+  .switcher-label {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .compact .switcher-label {
+    font-size: 0.75rem;
+  }
+  .segments {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .segment {
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    min-height: 36px;
+    padding: 0 var(--s-3);
+    cursor: pointer;
+    transition:
+      background-color var(--motion-150) var(--ease-out),
+      color var(--motion-150) var(--ease-out);
+  }
+  .segment:hover {
+    color: var(--ink);
+  }
+  .segment[aria-checked='true'] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  }
+</style>

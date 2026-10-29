@@ -1,0 +1,60 @@
+---
+title: Sprache & Text
+icon: 💬
+order: 1
+tagline: Schreiben, übersetzen, zusammenfassen, beraten – in fast jeder Sprache.
+interests: [text, arbeit, lernen]
+explain:
+  einsteiger: Chatbots wie ChatGPT oder Claude beantworten Fragen, schreiben E-Mails und erklären schwierige Dinge in einfachen Worten. Du schreibst einfach, was du brauchst.
+  anwender: Große Sprachmodelle (LLMs) haben aus riesigen Textmengen gelernt, wie Sprache funktioniert. Sie verarbeiten heute auch Bilder, PDFs und Audio und können ganze Bücher auf einmal lesen.
+  profi: Transformer-basierte LLMs mit Kontextfenstern von Hunderttausenden bis Millionen Token, post-trainiert per RLHF/RLAIF und RL auf verifizierbaren Aufgaben. Reasoning-Modelle skalieren die Rechenzeit zur Inferenz.
+achievements:
+  - { year: '2017', text: 'Der Transformer wird erfunden – die Basis aller modernen Sprachmodelle.' }
+  - { year: '2020', text: 'GPT-3 zeigt: Große Modelle lernen Aufgaben schon aus wenigen Beispielen.' }
+  - { year: '2022', text: 'ChatGPT erreicht in rund zwei Monaten 100 Millionen Nutzer:innen.' }
+  - { year: '2024', text: 'Reasoning-Modelle denken vor der Antwort nach und lösen schwere Mathe- und Logikaufgaben.' }
+future:
+  - Assistenten, die dich über Wochen kennen, sich an Vorlieben erinnern und proaktiv helfen.
+  - Echtzeit-Übersetzung in Gesprächen mit der eigenen Stimme.
+  - Deutlich weniger Halluzinationen durch Quellenprüfung und Selbstkontrolle.
+tryIt: 'Erkläre mir den Unterschied zwischen Wetter und Klima so, als wäre ich 10 Jahre alt. Danach noch einmal so, als wäre ich Meteorologin.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Texte schreiben und überarbeiten:** E-Mails, Bewerbungen, Berichte, Social-Media-Posts – in jedem Ton.
+- **Zusammenfassen:** Lange Dokumente, Verträge oder Studien in wenigen Sätzen auf den Punkt bringen.
+- **Übersetzen:** In über hundert Sprachen, inklusive Fachsprache und Umgangston.
+- **Erklären und beraten:** Komplexe Themen verständlich machen, Ideen sammeln, Argumente abwägen.
+- **Recherchieren:** Mit Websuche aktuelle Informationen finden und mit Quellen belegen.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Das Sprachmodell hat beim Training so viel Text gelesen wie kein Mensch in tausend Leben. Dabei hat es gelernt, welche Wörter wie zusammenpassen. Wenn du eine Frage stellst, baut es die Antwort Wort für Wort zusammen – immer mit dem Wort, das an dieser Stelle am besten passt.
+
+</Level>
+
+<Level for="anwender">
+
+Dein Text wird in **Token** (Wortstücke) zerlegt. Das Modell berechnet für jedes mögliche nächste Token eine Wahrscheinlichkeit, wählt eines aus und wiederholt das, bis die Antwort fertig ist. Alles, was im aktuellen Gespräch steht – deine Nachrichten, hochgeladene Dateien, Suchergebnisse – ist das **Kontextfenster**: das Kurzzeitgedächtnis des Modells.
+
+Damit aus einem reinen „Textvervollständiger“ ein hilfreicher Assistent wird, wird das Modell nach dem Grundtraining mit menschlichem Feedback nachtrainiert.
+
+</Level>
+
+<Level for="profi">
+
+Kern ist der **Decoder-only-Transformer**: Token-Embeddings durchlaufen Dutzende Schichten aus Multi-Head-Self-Attention und Feed-Forward-Blöcken (zunehmend als *Mixture of Experts*, bei dem pro Token nur ein Teil der Parameter aktiv ist). Das Pretraining minimiert die Cross-Entropy der Next-Token-Prediction.
+
+Post-Training kombiniert SFT, Präferenzoptimierung (RLHF, DPO, Constitutional AI) und RL auf verifizierbaren Belohnungen. Für lange Kontexte kommen effiziente Attention-Varianten und KV-Cache-Optimierungen zum Einsatz; Retrieval (RAG) und Tool-Use verbinden das Modell mit externem Wissen.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Sprachmodelle klingen immer überzeugt – auch wenn sie falsch liegen. Wichtige Fakten prüfen.
+- Ohne Websuche kennen sie nur den Stand ihres Trainings.
+- Persönliche oder vertrauliche Daten nur eingeben, wenn du dem Anbieter vertraust.

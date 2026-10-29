@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import LevelSwitcher from '../../components/LevelSwitcher.astro';
+import TopicGrid from '../../components/TopicGrid.astro';
+---
+
+<Base title="Alle Themen" current="themen">
+  <section class="container head">
+    <span class="kicker">Themen</span>
+    <h1>Was KI alles kann</h1>
+    <p class="lead">Alle Fähigkeitsbereiche im Überblick. Themen, die zu deinen Quiz-Interessen passen, stehen vorne.</p>
+    <LevelSwitcher compact />
+    <TopicGrid />
+  </section>
+</Base>
+
+<style>
+  .head {
+    padding-top: var(--s-7);
+  }
+  .head .lead {
+    margin-bottom: var(--s-5);
+  }
+</style>

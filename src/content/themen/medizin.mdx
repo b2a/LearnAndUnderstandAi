@@ -1,0 +1,55 @@
+---
+title: Medizin & Gesundheit
+icon: 🩺
+order: 6
+tagline: Früher erkennen, besser behandeln, schneller neue Medikamente finden.
+interests: [gesundheit, wissen]
+explain:
+  einsteiger: KI hilft Ärztinnen und Ärzten, Krankheiten auf Röntgenbildern oder Hautfotos früher zu erkennen. Die Entscheidung trifft aber immer der Mensch.
+  anwender: Zugelassene KI-Systeme werten medizinische Bilder aus, warnen vor Komplikationen und übernehmen Dokumentation. In der Forschung beschleunigt KI die Suche nach neuen Wirkstoffen.
+  profi: Hunderte KI-Medizinprodukte sind zugelassen, überwiegend in der Radiologie. Große Studien zeigen Nutzen etwa im Mammografie-Screening; generative Modelle entwerfen Moleküle und Proteine, erste KI-entdeckte Wirkstoffe sind in klinischen Studien.
+achievements:
+  - { year: '2018', text: 'In den USA wird das erste KI-System zugelassen, das selbstständig eine Diagnose stellt (Augenschäden bei Diabetes).' }
+  - { year: '2020', text: 'KI entdeckt mit Halicin ein neuartiges Antibiotikum.' }
+  - { year: '2023', text: 'Große Studie in Schweden – KI-gestütztes Brustkrebs-Screening findet mehr Tumoren und entlastet Radiolog:innen.' }
+  - { year: '2025', text: 'Erste vollständig mit KI entwickelte Wirkstoffe zeigen positive Ergebnisse in klinischen Studien.' }
+future:
+  - KI als Standard-„Zweitmeinung“ bei Bildgebung und Labordaten.
+  - Personalisierte Therapien auf Basis von Genom- und Gesundheitsdaten.
+  - Deutlich kürzere Entwicklungszeiten für neue Medikamente.
+tryIt: 'Ich habe einen Arzttermin wegen anhaltender Kopfschmerzen. Hilf mir, eine Liste sinnvoller Fragen und Beobachtungen für das Gespräch vorzubereiten.'
+---
+import Level from '../../components/Level.astro';
+
+## Was KI hier heute kann
+
+- **Bilder auswerten:** Röntgen, CT, MRT, Hautbilder, Augenhintergrund – KI markiert Auffälligkeiten und priorisiert dringende Fälle.
+- **Früherkennung:** Hinweise auf Krebs, Herzprobleme oder Sepsis früher entdecken.
+- **Dokumentation:** Arztgespräche mitschreiben und Arztbriefe vorbereiten – mehr Zeit für Patient:innen.
+- **Medikamentenforschung:** Wirkstoffkandidaten entwerfen und Eigenschaften vorhersagen.
+- **Gesundheitswissen:** Befunde verständlich erklären und Arztgespräche vorbereiten.
+
+## So funktioniert's
+
+<Level for="einsteiger">
+
+Eine Radiologin sieht in ihrem Berufsleben vielleicht hunderttausend Bilder. Eine KI kann aus Millionen Bildern mit bekannten Diagnosen lernen. Sie wird dadurch sehr gut darin, kleine Auffälligkeiten zu entdecken – und gibt der Ärztin einen Hinweis: „Schau dir diese Stelle genauer an.“
+
+</Level>
+
+<Level for="anwender">
+
+Medizinische KI muss als **Medizinprodukt** zugelassen werden und beweisen, dass sie sicher und nützlich ist. Meist arbeitet sie als zweites Paar Augen: Sie sortiert Fälle vor oder markiert Stellen, die Fachleute dann beurteilen. Studien zeigen, dass Mensch + KI oft besser ist als jeder allein.
+
+</Level>
+
+<Level for="profi">
+
+Klinische Modelle sind meist überwachte CNN-/ViT-Klassifikatoren und Segmentierer; zunehmend kommen **Foundation Models** für Pathologie, Radiologie und EHR-Daten hinzu, die mit wenig gelabelten Daten adaptiert werden. Große Herausforderungen: Distribution Shift zwischen Kliniken und Geräten, Kalibrierung, Bias über Patientengruppen, prospektive Validierung und Integration in klinische Workflows. In der Wirkstoffforschung kombinieren Pipelines Strukturvorhersage, generatives Moleküldesign und Active Learning.
+
+</Level>
+
+## Worauf du achten solltest
+
+- Chatbots ersetzen keine ärztliche Diagnose. Nutze sie zum Verstehen und Vorbereiten.
+- Gesundheitsdaten sind besonders sensibel – genau prüfen, wo du sie eingibst.

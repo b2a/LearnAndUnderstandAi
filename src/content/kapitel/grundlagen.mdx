@@ -1,0 +1,66 @@
+---
+title: Was ist KI eigentlich?
+kicker: Grundlagen
+icon: 🧠
+---
+import Level from '../../components/Level.astro';
+import NextWordDemo from '../../components/NextWordDemo.astro';
+import LearningLoop from '../../components/LearningLoop.astro';
+
+<Level for="einsteiger">
+
+**Künstliche Intelligenz (KI)** ist Software, die Aufgaben erledigt, für die man bisher menschliches Denken brauchte: Sprache verstehen, Bilder erkennen, Texte schreiben, Entscheidungen vorbereiten.
+
+Der wichtigste Unterschied zu normalen Programmen: Niemand schreibt der KI Schritt für Schritt vor, was sie tun soll. Stattdessen **lernt** sie aus sehr vielen Beispielen – ähnlich wie ein Kind, das tausend Hunde gesehen hat und danach jeden Hund erkennt, auch einen, den es noch nie gesehen hat.
+
+</Level>
+
+<Level for="anwender">
+
+KI ist ein Sammelbegriff für Systeme, die Aufgaben lösen, die typischerweise menschliche Intelligenz erfordern. Fast alles, was heute als „KI“ bezeichnet wird, ist **maschinelles Lernen**: Statt Regeln von Hand zu programmieren, leitet ein Modell Muster aus Daten ab.
+
+Die treibende Technik dahinter sind **neuronale Netze** – lose vom Gehirn inspirierte Rechenmodelle mit vielen Schichten („Deep Learning“). Moderne Sprachmodelle wie ChatGPT, Claude oder Gemini sind riesige neuronale Netze, die mit einem großen Teil des öffentlich verfügbaren Textes trainiert wurden.
+
+</Level>
+
+<Level for="profi">
+
+Heutige KI ist überwiegend **Deep Learning**: differenzierbare Funktionen mit Milliarden Parametern, die per Gradientenabstieg auf eine Verlustfunktion optimiert werden. Große Sprachmodelle (LLMs) sind **Transformer**, die per Self-Attention Beziehungen zwischen allen Token eines Kontexts gewichten.
+
+Das Training läuft in Phasen: **Pretraining** (Next-Token-Prediction auf Billionen Token), danach **Post-Training** mit Supervised Fine-Tuning, Reinforcement Learning aus menschlichem oder KI-Feedback und zunehmend **RL auf überprüfbaren Aufgaben** (Mathematik, Code), was die „Reasoning“-Fähigkeiten stark verbessert hat. Skalierung von Daten, Parametern und Rechenzeit – auch zur Inferenzzeit – bleibt ein zentraler Treiber.
+
+</Level>
+
+## Wie lernt eine Maschine?
+
+<LearningLoop />
+
+<Level for="einsteiger">
+
+Stell dir einen Lehrling vor, der unendlich viele Übungsaufgaben bekommt. Nach jeder Aufgabe erfährt er, wie falsch er lag, und verbessert sich ein kleines bisschen. Nach Milliarden Aufgaben ist er richtig gut – auch wenn er nicht erklären kann, *warum*.
+
+</Level>
+
+<Level for="anwender profi">
+
+Wichtig zu wissen: Das Modell speichert keine Texte wie eine Datenbank, sondern **statistische Muster** in seinen Parametern. Deshalb kann es neue Sätze bilden, aber auch Dinge erfinden, die plausibel klingen und trotzdem falsch sind („Halluzinationen“).
+
+</Level>
+
+## Wie schreibt ChatGPT eine Antwort?
+
+Ein Sprachmodell erzeugt Text **Wort für Wort** (genauer: in Wortstücken, sogenannten *Token*). Bei jedem Schritt berechnet es, wie wahrscheinlich jedes mögliche nächste Wort ist – und wählt eines aus. Probier es selbst:
+
+<NextWordDemo />
+
+<Level for="profi">
+
+> **Für Profis:** Die Demo zeigt Softmax mit Temperatur: *pᵢ ∝ exp(zᵢ / T)*. In der Praxis kommen Verfahren wie Top-p-Sampling hinzu. Reasoning-Modelle erzeugen vor der sichtbaren Antwort zusätzlich eine (oft verborgene) Gedankenkette – mehr Rechenzeit beim Antworten führt nachweislich zu besseren Ergebnissen bei schwierigen Aufgaben.
+
+</Level>
+
+## Schwache, starke und generative KI
+
+- **Spezialisierte KI** kann genau eine Sache sehr gut: Schach spielen, Spam erkennen, Gesichter entsperren. Sie steckt seit Jahren in deinem Handy.
+- **Generative KI** erzeugt Neues – Texte, Bilder, Musik, Videos, Code. Sie hat den aktuellen Boom ausgelöst.
+- **Allgemeine KI (AGI)** wäre ein System, das praktisch alle geistigen Aufgaben so gut wie ein Mensch erledigt. Ob und wann es so etwas geben wird, ist eine der großen offenen Fragen.
